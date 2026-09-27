@@ -772,6 +772,12 @@ li.top3 .rpos{background:linear-gradient(180deg,#d9a679,#9c6a3c);color:#26160a;b
   border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:14px;padding:11px 13px;color:var(--txt);
   transition:transform .16s ease,border-color .16s ease,background .16s ease;animation:sobeEntrada .5s ease both}
 .login-atleta:hover{transform:translateY(-3px);border-color:rgba(91,140,255,.6);background:rgba(91,140,255,.10)}
+.login-atleta.comissao{border-color:rgba(216,192,122,.25);background:rgba(216,192,122,.04)}
+.login-atleta.comissao:hover{border-color:rgba(216,192,122,.6);background:rgba(216,192,122,.12)}
+.login-atleta.ex-membro{opacity:.88;border-style:dashed}
+.login-atleta.ex-membro:hover{opacity:1;border-style:solid}
+.login-grupo-bloco{margin-bottom:14px}
+.login-grupo-titulo{font-size:11.5px;font-weight:700;letter-spacing:.6px;margin:12px 0 8px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
 .login-atleta:nth-child(2){animation-delay:.05s}.login-atleta:nth-child(3){animation-delay:.1s}
 .login-atleta:nth-child(4){animation-delay:.15s}.login-atleta:nth-child(5){animation-delay:.2s}
 .login-atleta:nth-child(6){animation-delay:.25s}.login-atleta:nth-child(7){animation-delay:.3s}
@@ -2658,7 +2664,7 @@ img,canvas,svg,video{max-width:100%}
 
     var players = state.players || [];
 
-    // 1. Busca exata (dando prioridade para atletas que não são comissão técnica)
+    // 1. Busca exata (prioridade para atletas do elenco)
     for (var i = 0; i < players.length; i++) {
       var p = players[i];
       if (ehEx(p) || ehComissao(p)) continue;
@@ -2670,24 +2676,44 @@ img,canvas,svg,video{max-width:100%}
       if (nk && pn && nk === pn) return p;
     }
 
-    // 2. Busca parcial, apelidos e raízes (ex.: Rafinha <-> Rafael, Dudu <-> Eduardo, JP <-> João Pedro)
+    // 2. Busca exata em comissão técnica (Rafael treinador, Josce, Ana)
     for (var i = 0; i < players.length; i++) {
       var p = players[i];
-      if (ehEx(p) || ehComissao(p)) continue;
+      if (!ehComissao(p)) continue;
+      var pn = semAcento(p.name || '').trim();
+      var pnk = semAcento(p.nick || '').trim();
+      if (nk && pnk && nk === pnk) return p;
+      if (n && pn && n === pn) return p;
+      if (n && pnk && n === pnk) return p;
+      if (nk && pn && nk === pn) return p;
+    }
+
+    // 3. Busca exata em ex-membros
+    for (var i = 0; i < players.length; i++) {
+      var p = players[i];
+      if (!ehEx(p)) continue;
+      var pn = semAcento(p.name || '').trim();
+      var pnk = semAcento(p.nick || '').trim();
+      if (nk && pnk && nk === pnk) return p;
+      if (n && pn && n === pn) return p;
+      if (n && pnk && n === pnk) return p;
+      if (nk && pn && nk === pn) return p;
+    }
+
+    // 4. Busca parcial, apelidos e raízes em todos os membros
+    for (var i = 0; i < players.length; i++) {
+      var p = players[i];
       var pn = semAcento(p.name || '').trim();
       var pnk = semAcento(p.nick || '').trim();
       
-      // Substring com pelo menos 3 caracteres
       if (nk && nk.length >= 3 && ((pnk && pnk.indexOf(nk) >= 0) || (pn && pn.indexOf(nk) >= 0))) return p;
       if (n && n.length >= 3 && ((pnk && pnk.indexOf(n) >= 0) || (pn && pn.indexOf(n) >= 0))) return p;
       if (pnk && pnk.length >= 3 && ((nk && nk.indexOf(pnk) >= 0) || (n && n.indexOf(pnk) >= 0))) return p;
       if (pn && pn.length >= 3 && ((nk && nk.indexOf(pn) >= 0) || (n && n.indexOf(pn) >= 0))) return p;
 
-      // Prefixo de apelido de 3 letras (ex: 'raf' em rafinha e rafael)
       if (nk && nk.length >= 3 && pnk && pnk.slice(0, 3) === nk.slice(0, 3)) return p;
       if (n && n.length >= 3 && pnk && pnk.slice(0, 3) === n.slice(0, 3)) return p;
 
-      // Palavras do nome completo
       var nWords = n.split(/\s+/).filter(Boolean);
       var pWords = pn.split(/\s+/).filter(Boolean);
       for (var w = 0; w < nWords.length; w++) {
@@ -2706,18 +2732,9 @@ img,canvas,svg,video{max-width:100%}
       }
     }
 
-    // 3. Fallback para comissão técnica se não achou atleta
-    for (var i = 0; i < players.length; i++) {
-      var p = players[i];
-      if (ehEx(p)) continue;
-      var pn = semAcento(p.name || '').trim();
-      var pnk = semAcento(p.nick || '').trim();
-      if (n && (pn === n || pnk === n)) return p;
-      if (nk && (pn === nk || pnk === nk)) return p;
-    }
-
     return null;
   }
+
   function primeiroNome(p) { return String((p && (p.nick || p.name)) || '').split(' ')[0]; }
 
   /* números do atleta logado (o site "puxa" o desempenho dele) */
@@ -5158,20 +5175,27 @@ img,canvas,svg,video{max-width:100%}
     var foto = srcFoto(p);
     var ehNovo = recemRegistrado === p.id;
     var temSenha = senhaAtletaDefinida(p);
-    return '<button class="login-atleta' + (ehNovo ? ' recem' : '') + '" data-act="entrar-atleta" data-id="' + p.id + '"' +
+    var comissao = ehComissao(p);
+    var ex = ehEx(p);
+    var tagFuncao = comissao ? (funcaoDe(p) + (p.pos ? ' &middot; ' + esc(p.pos) : '')) : (esc(p.pos) + (p.number ? ' &middot; #' + esc(p.number) : ''));
+    if (ex) tagFuncao += ' &middot; <span style="color:var(--txt-mute);font-weight:600">Já fez parte</span>';
+
+    var badgeOvr = comissao
+      ? '<span class="la-ovr" style="font-size:11px;letter-spacing:.3px;font-weight:700;color:var(--ouro);background:rgba(216,192,122,.12);padding:3px 6px;border-radius:6px;border:1px solid rgba(216,192,122,.25)">' + esc(p.pos) + '</span>'
+      : '<span class="la-ovr">' + overall(p) + '</span>';
+
+    return '<button class="login-atleta' + (ehNovo ? ' recem' : '') + (comissao ? ' comissao' : '') + (ex ? ' ex-membro' : '') + '" data-act="entrar-atleta" data-id="' + p.id + '"' +
       ' title="' + (temSenha ? 'Digite sua senha para entrar' : 'Primeiro acesso: toque para criar sua senha individual e entrar') + '">' +
       '<span class="la-avatar">' + (foto ? '<img alt="" src="' + esc(foto) + '">' : '<b>' + esc((p.nick || p.name || '?').slice(0, 2).toUpperCase()) + '</b>') + '</span>' +
-      '<span class="la-txt"><span class="la-nome">' + esc(p.nick || p.name || 'Atleta') + '</span>' +
-      '<span class="la-meta">' + esc(p.pos) + (p.number ? ' &middot; #' + esc(p.number) : '') +
+      '<span class="la-txt"><span class="la-nome">' + esc(p.nick || p.name || 'Membro') + '</span>' +
+      '<span class="la-meta">' + tagFuncao +
       (p.novo ? ' <b class="la-novo">nova contratação</b>' : '') + '</span></span>' +
-      '<span class="la-ovr">' + overall(p) + '</span>' +
+      badgeOvr +
       '<span class="la-lock' + (temSenha ? '' : ' pendente') + '" aria-label="' + (temSenha ? 'Senha configurada' : 'Primeiro acesso') + '">' +
       (temSenha ? '&#128274;' : '&#10024;') + '</span>' +
       '</button>';
   }
 
-  /* ---------- os três botões da tela de entrada ----------
-     Admin (senha) · Login (o atleta entra com o nome dele) · Registrar (atleta novo) */
   function botaoLogin(act, icone, titulo, dica, pri, extra) {
     return '<button class="btn login-btn' + (pri ? ' pri' : '') + (extra || '') + '" data-act="' + act + '" title="' + esc(dica) + '">' +
       '<span class="lb-ico" aria-hidden="true">' + icone + '</span>' +
@@ -5200,16 +5224,25 @@ img,canvas,svg,video{max-width:100%}
         'Para trocar quem est&aacute; usando, use o bot&atilde;o <b>Trocar</b> no topo da tela.</div>';
   }
   function blocoAtletasLogin() {
-    var atletas = sortedPlayers().filter(function (p) { return !ehEx(p) && !ehComissao(p); });   /* quem saiu e a comissão não entram pelo login de atleta */
-    var muitos = atletas.length > 8;
+    var todos = sortedPlayers();
+    var atletas = todos.filter(function (p) { return !ehEx(p) && !ehComissao(p); });
+    var comissao = todos.filter(function (p) { return !ehEx(p) && ehComissao(p); });
+    var exs = todos.filter(ehEx);
+    var muitos = todos.length > 6;
+
     return '' +
       '<div class="login-h1">Escolha seu nome e entre com senha</div>' +
-      '<div class="login-sub">Depois de tocar no seu nome, informe a <b>senha individual</b>. Assim, ninguém acessa o desempenho de outro atleta apenas escolhendo o nome dele.</div>' +
-      (muitos ? '<div class="login-filtro-cx"><input id="login-filtro" class="login-filtro" placeholder="Digite o seu nome para achar mais r&aacute;pido..." data-act="filtro-atletas" autocomplete="off">' +
-        '<span class="badge" id="login-filtro-conta">' + atletas.length + ' atletas</span></div>' : '') +
-      (atletas.length
-        ? '<div class="login-lista">' + atletas.map(cardLoginAtleta).join('') + '</div>'
-        : '<div class="login-vazio">Nenhum atleta cadastrado ainda' + (somenteLeitura() ? '.' : ' &mdash; toque em <b>Registrar</b> para criar a primeira cartinha, ou entre como <b>Admin</b> e cadastre o elenco na aba Elenco.') + '</div>') +
+      '<div class="login-sub">Toque no seu nome para entrar com a sua <b>senha individual</b>. Atletas, comissão técnica (Rafael treinador, Josce, Ana) e quem já vestiu a camisa têm acesso liberado.</div>' +
+      (muitos ? '<div class="login-filtro-cx"><input id="login-filtro" class="login-filtro" placeholder="Digite o seu nome para achar mais rápido..." data-act="filtro-atletas" autocomplete="off">' +
+        '<span class="badge" id="login-filtro-conta">' + todos.length + ' membros</span></div>' : '') +
+      (todos.length ? (
+        (atletas.length ? '<div class="login-grupo-bloco"><div class="login-grupo-titulo" style="color:var(--txt-dim)">&#9917; Atletas do Elenco (' + atletas.length + ')</div>' +
+          '<div class="login-lista">' + atletas.map(cardLoginAtleta).join('') + '</div></div>' : '') +
+        (comissao.length ? '<div class="login-grupo-bloco"><div class="login-grupo-titulo" style="color:var(--ouro)">&#128203; Comissão Técnica &middot; Treinador e Auxiliares (' + comissao.length + ')</div>' +
+          '<div class="login-lista">' + comissao.map(cardLoginAtleta).join('') + '</div></div>' : '') +
+        (exs.length ? '<div class="login-grupo-bloco"><div class="login-grupo-titulo" style="color:var(--txt-mute)">&#9203; Jogadores que já fizeram parte do time (' + exs.length + ')</div>' +
+          '<div class="login-lista">' + exs.map(cardLoginAtleta).join('') + '</div></div>' : '')
+      ) : '<div class="login-vazio">Nenhum membro cadastrado ainda' + (somenteLeitura() ? '.' : ' &mdash; toque em <b>Registrar</b> para criar a primeira cartinha, ou entre como <b>Admin</b> e cadastre o elenco na aba Elenco.') + '</div>') +
       '<div class="login-acoes">' +
         botaoLogin('voltar-login-menu', '&#8592;', 'Voltar', 'para a tela inicial', false) +
         botaoLogin('abrir-registro', '&#10024;', 'Registrar',
@@ -5224,9 +5257,9 @@ img,canvas,svg,video{max-width:100%}
       el.id = 'login';
       document.body.appendChild(el);
     }
-    var atletas = sortedPlayers().filter(function (p) { return !ehEx(p) && !ehComissao(p); });   /* quem saiu e a comissão não entram pelo login de atleta */
+    var todos = sortedPlayers();
     /* o botão Login abre a lista (mesmo que ainda não haja atleta); recém-cadastrado também cai direto nela */
-    var etapa = (etapaLogin === 'atletas' || (recemRegistrado && atletas.length)) ? 'atletas' : 'menu';
+    var etapa = (etapaLogin === 'atletas' || (recemRegistrado && todos.length)) ? 'atletas' : 'menu';
     var h = '<div class="login-box">' +
       '<div class="login-hero">' +
         '<div class="login-crest">' + (state.team.logo ? '<img alt="logo" src="' + esc(state.team.logo) + '">'
@@ -5234,14 +5267,14 @@ img,canvas,svg,video{max-width:100%}
         '<div class="login-time">' + esc(state.team.name || 'Meu Time') + '</div>' +
         '<div class="login-comp">' + esc([state.team.competition, state.team.season].filter(Boolean).join(' • ') || 'Futsal &middot; sistema de evolução') + '</div>' +
       '</div>' +
-      (recemRegistrado ? '<div class="login-ok">&#9989; Cadastro feito! Toque no seu nome abaixo para entrar &mdash; a sua recep&#231;&#227;o de boas-vindas vai aparecer na hora.</div>' : '') +
+      (recemRegistrado ? '<div class="login-ok">&#9989; Cadastro feito! Toque no seu nome abaixo para entrar &mdash; a sua recepção de boas-vindas vai aparecer na hora.</div>' : '') +
       (etapa === 'atletas' ? blocoAtletasLogin() : blocoMenuLogin()) +
       '</div>';
     el.innerHTML = h;
     return el;
   }
 
-    function calcularIdadeDeData(dtStr) {
+  function calcularIdadeDeData(dtStr) {
     if (!dtStr) return '';
     var pts = String(dtStr).split('-');
     if (pts.length < 3) return '';
@@ -5264,21 +5297,34 @@ function formularioRegistro() {
         '<div class="inline"><button class="btn ok" data-act="confirma-registro">Continuar</button><button class="btn" data-act="fechar">Cancelar</button></div>', true);
       return;
     }
-    var atletasElenco = sortedPlayers().filter(function (p) { return !ehEx(p) && !ehComissao(p); });
-    var opcoesAtletas = atletasElenco.map(function (p) {
-      return '<option value="' + esc(p.id) + '">' + esc(p.nick || p.name) + ' (#' + esc(p.number || '-') + ' ' + esc(p.pos) + ')' + (senhaAtletaDefinida(p) ? ' [com senha]' : '') + '</option>';
-    }).join('');
+    var todosMembros = sortedPlayers();
+    var atletasElenco = todosMembros.filter(function (p) { return !ehEx(p) && !ehComissao(p); });
+    var comissao = todosMembros.filter(function (p) { return !ehEx(p) && ehComissao(p); });
+    var exAtletas = todosMembros.filter(ehEx);
+
+    var opcoesAtletas = '<optgroup label="Atletas do Elenco">' +
+      atletasElenco.map(function (p) {
+        return '<option value="' + esc(p.id) + '">' + esc(p.nick || p.name) + ' (#' + esc(p.number || '-') + ' ' + esc(p.pos) + ')' + (senhaAtletaDefinida(p) ? ' [com senha]' : '') + '</option>';
+      }).join('') + '</optgroup>' +
+      (comissao.length ? '<optgroup label="Comissão Técnica (Treinador & Auxiliares)">' +
+        comissao.map(function (p) {
+          return '<option value="' + esc(p.id) + '">' + esc(p.nick || p.name) + ' (' + esc(funcaoDe(p)) + ' &middot; ' + esc(p.pos) + ')' + (senhaAtletaDefinida(p) ? ' [com senha]' : '') + '</option>';
+        }).join('') + '</optgroup>' : '') +
+      (exAtletas.length ? '<optgroup label="Quem já fez parte do time (Ex-atletas)">' +
+        exAtletas.map(function (p) {
+          return '<option value="' + esc(p.id) + '">' + esc(p.nick || p.name) + ' (Ex-atleta &middot; ' + esc(p.pos) + ')' + (senhaAtletaDefinida(p) ? ' [com senha]' : '') + '</option>';
+        }).join('') + '</optgroup>' : '');
 
     openModal(
       '<div class="modal-head"><h3>&#128221; Registrar no time</h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
-      '<div class="registro-obrigatorio"><span aria-hidden="true">&#128274;</span><span><b>Cadastro Obrigatório do Atleta.</b> Preencha <b>todas as informações obrigatórias (*)</b> para vincular sua cartinha, liberar seu acesso e completar os dados do time no sistema.</span></div>' +
-      (atletasElenco.length ? '<label class="f"><span>Você já está no elenco do time?</span><select id="rg-atleta-sel" data-act="rg-sel-atleta"><option value="">-- Sou um atleta novo no time --</option>' + opcoesAtletas + '</select></label>' : '') +
-      '<div class="panel tight" style="margin-bottom:12px"><div class="h3">Dados Obrigatórios do Atleta</div>' +
+      '<div class="registro-obrigatorio"><span aria-hidden="true">&#128274;</span><span><b>Cadastro Obrigatório de Membros.</b> Atletas, comissão técnica (Rafael treinador, Josce, Ana) e quem já vestiu a camisa podem selecionar seus nomes para vincular e criar sua senha individual. Todos os campos com <b>(*)</b> são obrigatórios.</span></div>' +
+      (todosMembros.length ? '<label class="f"><span>Você já está cadastrado no time?</span><select id="rg-atleta-sel" data-act="rg-sel-atleta"><option value="">-- Sou um membro novo no time --</option>' + opcoesAtletas + '</select></label>' : '') +
+      '<div class="panel tight" style="margin-bottom:12px"><div class="h3">Dados Obrigatórios</div>' +
       '<label class="f"><span>Nome completo *</span><input id="rg-nome" maxlength="80" placeholder="Ex.: João Pedro da Silva" autocomplete="name" required></label>' +
       '<label class="f"><span>Nome na carta (apelido) *</span><input id="rg-nick" maxlength="30" placeholder="Ex.: JP" autocomplete="nickname" required></label>' +
       '<div class="row">' +
-      '<label class="f"><span>Camisa *</span><input id="rg-num" maxlength="4" placeholder="Ex.: 10" inputmode="numeric" required></label>' +
-      '<label class="f"><span>Posição *</span><select id="rg-pos" required><option value="">Selecione a posição</option>' + POSITIONS.filter(function (x) { return x !== 'TEC' && x !== 'AUX'; }).map(function (x) { return opcao(x, x + ' - ' + POS_NAME[x], ''); }).join('') + '</select></label>' +
+      '<label class="f"><span>Camisa *</span><input id="rg-num" maxlength="4" placeholder="Ex.: 10 (ou 0 para comissão)" inputmode="numeric" required></label>' +
+      '<label class="f"><span>Posição / Função *</span><select id="rg-pos" required><option value="">Selecione</option>' + POSITIONS.map(function (x) { return opcao(x, x + ' - ' + (POS_NAME[x] || FUNCAO_PADRAO[x] || x), ''); }).join('') + '</select></label>' +
       '</div>' +
       '<div class="row">' +
       '<label class="f"><span>Altura (cm) *</span><input id="rg-alt" type="number" min="90" max="230" placeholder="Ex.: 178" inputmode="numeric" required></label>' +
@@ -5290,10 +5336,10 @@ function formularioRegistro() {
       '</div>' +
       '<div class="row">' +
       '<label class="f"><span>Pé preferido *</span><select id="rg-pe" required>' + ['Direito', 'Esquerdo', 'Ambos'].map(function (x) { return opcao(x, x, 'Direito'); }).join('') + '</select></label>' +
-      '<label class="f"><span>Posição secundária / obs (opcional)</span><input id="rg-obs" maxlength="60" placeholder="Ex.: Ala / Meia"></label>' +
+      '<label class="f"><span>Posição secundária / obs (opcional)</span><input id="rg-obs" maxlength="60" placeholder="Ex.: Treinador / Ala / Fixo"></label>' +
       '</div></div>' +
       '<div class="panel tight acesso-atleta"><div class="h3">&#128273; Sua senha individual de acesso</div>' +
-      '<div class="sub" style="margin:2px 0 8px">Crie uma senha de pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b> para acessar sua cartinha e seus desempenhos.</div>' +
+      '<div class="sub" style="margin:2px 0 8px">Crie uma senha de pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b> para acessar o site.</div>' +
       '<label class="f"><span>Crie uma senha *</span><input id="rg-senha" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="Mínimo de ' + SENHA_ATLETA_MIN + ' caracteres" autocomplete="new-password" required></label>' +
       '<label class="f"><span>Confirme a sua senha *</span><input id="rg-senha2" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="Repita a mesma senha" autocomplete="new-password" required></label>' +
       '</div>' +
@@ -5307,15 +5353,19 @@ function formularioRegistro() {
     if (!p) return;
     var calcId = p.birth ? calcularIdadeDeData(p.birth) : '';
     var idadeVal = p.idade || calcId || '';
+    var isComissao = ehComissao(p);
+    var isEx = ehEx(p);
+    var cargoTitulo = isComissao ? ('Comissão Técnica &middot; ' + funcaoDe(p)) : (isEx ? 'Ex-atleta' : 'Atleta');
+
     openModal(
-      '<div class="modal-head"><h3>&#10024; Primeiro Acesso &middot; ' + esc(p.nick || p.name) + '</h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
-      '<div class="registro-obrigatorio"><span aria-hidden="true">&#128273;</span><span><b>Bem-vindo, ' + esc(p.nick || p.name) + '!</b> Para ativar o seu acesso, é <b>obrigatório preencher todas as suas informações (*)</b> e cadastrar sua senha individual de acesso.</span></div>' +
-      '<div class="panel tight" style="margin-bottom:12px"><div class="h3">Dados Obrigatórios do Atleta</div>' +
+      '<div class="modal-head"><h3>&#10024; Primeiro Acesso &middot; ' + esc(p.nick || p.name) + ' <span class="badge pos">' + esc(p.pos) + '</span></h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
+      '<div class="registro-obrigatorio"><span aria-hidden="true">&#128273;</span><span><b>Bem-vindo, ' + esc(p.nick || p.name) + ' (' + cargoTitulo + ')!</b> Para ativar o seu acesso, é <b>obrigatório preencher todas as suas informações (*)</b> e cadastrar sua senha individual de acesso.</span></div>' +
+      '<div class="panel tight" style="margin-bottom:12px"><div class="h3">Dados Obrigatórios</div>' +
       '<label class="f"><span>Nome completo *</span><input id="pa-nome" maxlength="80" value="' + esc(p.name || '') + '" placeholder="Ex.: João Pedro da Silva" autocomplete="name" required></label>' +
       '<label class="f"><span>Nome na carta (apelido) *</span><input id="pa-nick" maxlength="30" value="' + esc(p.nick || '') + '" placeholder="Ex.: JP" autocomplete="nickname" required></label>' +
       '<div class="row">' +
-      '<label class="f"><span>Camisa *</span><input id="pa-num" maxlength="4" value="' + esc(p.number || '') + '" placeholder="Ex.: 10" inputmode="numeric" required></label>' +
-      '<label class="f"><span>Posição *</span><select id="pa-pos" required><option value="">Selecione a posição</option>' + POSITIONS.filter(function (x) { return x !== 'TEC' && x !== 'AUX'; }).map(function (x) { return opcao(x, x + ' - ' + POS_NAME[x], p.pos || ''); }).join('') + '</select></label>' +
+      '<label class="f"><span>Camisa *</span><input id="pa-num" maxlength="4" value="' + esc(p.number || (isComissao ? '0' : '')) + '" placeholder="Ex.: 10" inputmode="numeric" required></label>' +
+      '<label class="f"><span>Posição / Função *</span><select id="pa-pos" required><option value="">Selecione</option>' + POSITIONS.map(function (x) { return opcao(x, x + ' - ' + (POS_NAME[x] || FUNCAO_PADRAO[x] || x), p.pos || ''); }).join('') + '</select></label>' +
       '</div>' +
       '<div class="row">' +
       '<label class="f"><span>Altura (cm) *</span><input id="pa-alt" type="number" min="90" max="230" value="' + esc(p.height || '') + '" placeholder="Ex.: 178" inputmode="numeric" required></label>' +
@@ -5327,7 +5377,7 @@ function formularioRegistro() {
       '</div>' +
       '<div class="row">' +
       '<label class="f"><span>Pé preferido *</span><select id="pa-pe" required>' + ['Direito', 'Esquerdo', 'Ambos'].map(function (x) { return opcao(x, x, p.foot || 'Direito'); }).join('') + '</select></label>' +
-      '<label class="f"><span>Posição secundária / obs (opcional)</span><input id="pa-obs" maxlength="60" value="' + esc(p.notes || '') + '" placeholder="Ex.: Ala / Meia"></label>' +
+      '<label class="f"><span>Posição secundária / obs (opcional)</span><input id="pa-obs" maxlength="60" value="' + esc(p.notes || '') + '" placeholder="Ex.: Ala / Treinador"></label>' +
       '</div></div>' +
       '<div class="panel tight acesso-atleta"><div class="h3">&#128273; Criar sua senha de acesso</div>' +
       '<div class="sub" style="margin:2px 0 8px">Crie uma senha de pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b>. É com ela que você entrará no site sempre.</div>' +
@@ -6173,10 +6223,14 @@ function formularioRegistro() {
     var p = atletaLogado();
     if (p) {
       var foto = srcFoto(p);
-      el.className = 'user-chip atleta';
+      var comissao = ehComissao(p);
+      var ex = ehEx(p);
+      var tagSub = comissao ? (funcaoDe(p) + (p.pos ? ' (' + p.pos + ')' : '')) : (esc(p.pos) + ' &middot; OVR ' + overall(p));
+      if (ex) tagSub += ' (Já fez parte)';
+      el.className = 'user-chip atleta' + (comissao ? ' comissao' : '');
       el.innerHTML = '<span class="uc-av">' + (foto ? '<img alt="" src="' + esc(foto) + '">' : '<b>' + esc((p.nick || p.name || '?').slice(0, 2).toUpperCase()) + '</b>') + '</span>' +
-        '<span class="uc-txt"><b>' + esc(p.nick || p.name) + '</b><i>' + esc(p.pos) + ' &middot; OVR ' + overall(p) + '</i></span>' +
-        '<button class="btn xs" data-act="abrir-minha-ficha" title="Ver a minha carta e o meu desempenho">Minha ficha</button>' +
+        '<span class="uc-txt"><b>' + esc(p.nick || p.name) + '</b><i>' + tagSub + '</i></span>' +
+        '<button class="btn xs" data-act="abrir-minha-ficha" title="Ver a minha carta e os meus dados">Minha ficha</button>' +
         (somenteLeitura() ? '' : '<button class="btn xs" data-act="abrir-admin" title="Entrar como administrador do site (senha)">&#128273;</button>') +
         '<button class="btn xs danger-soft" data-act="trocar-usuario" title="Sair da sua conta / trocar usuário">&#128682; Sair</button>';
     } else if (perfil.tipo === 'convidado') {
@@ -6287,13 +6341,13 @@ function formularioRegistro() {
       '</div>' +
       '<label class="f"><span>Observações</span><textarea rows="2" data-act="set" data-id="' + p.id + '" data-k="notes">' + esc(p.notes) + '</textarea></label>' +
       '</div>' +
-      (ehComissao(p) ? '' : '<div class="panel tight acesso-atleta" style="margin-bottom:14px">' +
+      '<div class="panel tight acesso-atleta" style="margin-bottom:14px">' +
         '<div class="h3">&#128274; Acesso do atleta</div>' +
         '<div class="media-note" style="margin:0 0 10px">' + (senhaAtletaDefinida(p)
           ? 'Senha individual <b>configurada</b> em ' + (p.senhaAtletaEm ? fmtDataHora(p.senhaAtletaEm) : 'data não registrada') + '. Ela é exigida após o atleta escolher o nome no Login.'
           : 'Senha <b>ainda não configurada</b>. Sem ela, este atleta não consegue entrar pelo Login — isso evita acesso por quem apenas escolhe o nome dele.') + '</div>' +
         '<button class="btn sm ' + (senhaAtletaDefinida(p) ? '' : 'pri') + '" data-act="definir-senha-atleta" data-id="' + p.id + '">' +
-          (senhaAtletaDefinida(p) ? '&#128273; Redefinir senha' : '&#128273; Criar senha de acesso') + '</button></div>') +
+          (senhaAtletaDefinida(p) ? '&#128273; Redefinir senha' : '&#128273; Criar senha de acesso') + '</button></div>' +
       '<div class="panel tight" style="border-color:rgba(216,192,122,.35);background:rgba(216,192,122,.05)">' +
       '<div class="h3" style="margin:0 0 8px">&#10024; Nova contrata&#231;&#227;o</div>' +
       '<div class="row">' +
@@ -10354,16 +10408,20 @@ function formularioRegistro() {
           });
         }
       } else if (act === 'filtro-atletas') {
-        var listaF = document.querySelector('.login-lista');
-        if (listaF) {
+        var botoes = document.querySelectorAll('.login-lista .login-atleta');
+        if (botoes.length) {
           var q = semAcento(el.value), achou = 0;
-          Array.prototype.forEach.call(listaF.children, function (c) {
+          botoes.forEach(function (c) {
             var bate = !q || semAcento(c.textContent).indexOf(q) > -1;
             c.style.display = bate ? '' : 'none';
             if (bate) achou++;
           });
+          document.querySelectorAll('.login-grupo-bloco').forEach(function (grp) {
+            var visiveis = grp.querySelectorAll('.login-atleta:not([style*="display: none"])');
+            grp.style.display = visiveis.length ? '' : 'none';
+          });
           var conta = document.getElementById('login-filtro-conta');
-          if (conta) conta.textContent = achou === 1 ? '1 atleta' : achou + ' atletas';
+          if (conta) conta.textContent = achou === 1 ? '1 membro' : achou + ' membros';
         }
       } else if (act === 'set-xp-pe') {
         state.settings.xpPerPE = clamp(num(el.value, XP_POR_PE), 5, 1000);
@@ -11909,4 +11967,4 @@ function formularioRegistro() {
   };
 })();
 
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41dbfc15d49864b',t:'MTc5MDU0NjA4OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41dd9d159409d59',t:'MTc5MDU0NzE1Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
