@@ -2616,9 +2616,31 @@ img,canvas,svg,video{max-width:100%}
     toast('&#128273; <b>Só o administrador altera os dados do time.</b> Toque em <b>🔑 Entrar como administrador</b> no topo (ou na tela de entrada) e digite a senha.', 'warn', 7000);
   }
   var adminAvisouEm = 0;
-  function lerLogin() { try { return JSON.parse(window.localStorage.getItem(LS_LOGIN) || 'null'); } catch (e) { return null; } }
-  function gravarLogin(o) { try { window.localStorage.setItem(LS_LOGIN, JSON.stringify(o)); } catch (e) { } }
-  function apagarLogin() { try { window.localStorage.removeItem(LS_LOGIN); } catch (e) { } }
+  /* Sessão de Login: mantida na sessão atual (sessionStorage) para que cada pessoa/amigo
+     que abrir o link no GitHub ou celular comece sempre na tela de entrada/login */
+  function lerLogin() {
+    try {
+      var s = window.sessionStorage.getItem(LS_LOGIN);
+      if (s) {
+        var obj = JSON.parse(s);
+        if (obj && (obj.tipo === 'tecnico' || obj.tipo === 'convidado' || (obj.tipo === 'atleta' && obj.pid && playerById(obj.pid)))) {
+          return obj;
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+  function gravarLogin(o) {
+    try {
+      if (o) window.sessionStorage.setItem(LS_LOGIN, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function apagarLogin() {
+    try {
+      window.sessionStorage.removeItem(LS_LOGIN);
+      window.localStorage.removeItem(LS_LOGIN);
+    } catch (e) {}
+  }
   var perfil = lerLogin();
   function perfilAtual() { return perfil; }
   function ehTecnico() { return !!perfil && perfil.tipo === 'tecnico'; }
@@ -6103,7 +6125,7 @@ img,canvas,svg,video{max-width:100%}
   }
 
   function iniciarLogin() {
-    /* já logado? entra direto. Arquivo só de visualização sem elenco: mostra a tela mesmo assim. */
+    /* se já está logado e validado nesta sessão, entra direto */
     if (perfil && (perfil.tipo === 'tecnico' || perfil.tipo === 'convidado' ||
         (perfil.tipo === 'atleta' && playerById(perfil.pid) && perfil.senhaConfirmada === true))) {
       if (perfil.tipo === 'atleta') {
@@ -6112,7 +6134,9 @@ img,canvas,svg,video{max-width:100%}
       }
       return;
     }
-    if (perfil && perfil.tipo === 'atleta' && (!playerById(perfil.pid) || perfil.senhaConfirmada !== true)) { perfil = null; apagarLogin(); }
+    /* caso contrário, garante que ninguém entra automaticamente em conta de atleta sem escolher */
+    perfil = null;
+    apagarLogin();
     telaLogin();
   }
 
@@ -9258,7 +9282,7 @@ img,canvas,svg,video{max-width:100%}
         case 'trocar-usuario': {
           perfil = null; apagarLogin();
           state.ui.tab = 'elenco'; render(); renderTopbar();
-          etapaLogin = 'atletas';            /* trocar de pessoa: já abre a lista de nomes */
+          etapaLogin = 'menu';               /* mostra o menu com Convidado, Login e Admin */
           abrirLogin();
           break;
         }
@@ -11715,4 +11739,4 @@ img,canvas,svg,video{max-width:100%}
   };
 })();
 
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d3ab8bde7f521',t:'MTc5MDU0MDY0MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d57b2ca9bf521',t:'MTc5MDU0MTgyNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
