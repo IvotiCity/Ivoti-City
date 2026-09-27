@@ -79,14 +79,18 @@ a:hover{text-decoration:underline}
 .topbar{
   position:sticky;top:0;z-index:40;
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  background:linear-gradient(180deg,rgba(6,10,22,.94),rgba(6,10,22,.74));
+  background:linear-gradient(180deg,rgba(6,10,22,.96),rgba(6,10,22,.88));
   border-bottom:1px solid var(--line);
+  width:100%;box-sizing:border-box;
 }
 .topbar-in{
-  max-width:1280px;margin:0 auto;padding:10px 18px;
-  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  max-width:1320px;margin:0 auto;padding:8px 16px 6px;
+  display:flex;flex-direction:column;gap:6px;width:100%;box-sizing:border-box;
 }
-.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.topbar-main-row{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;flex:0 1 auto}
 .brand-crest{
   width:44px;height:44px;border-radius:12px;overflow:hidden;flex:0 0 auto;
   background:linear-gradient(160deg,#12203f,#070c18);
@@ -97,35 +101,38 @@ a:hover{text-decoration:underline}
 .brand-cr-text{font-weight:800;font-size:19px;letter-spacing:.5px;color:var(--silver)}
 .brand-t{display:flex;flex-direction:column;min-width:0}
 .brand-name{
-  font-weight:800;font-size:16px;letter-spacing:.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44vw;
+  font-weight:800;font-size:16.5px;letter-spacing:.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw;
   background:linear-gradient(180deg,#fff 10%,#b9c6da 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
-.brand-sub{font-size:11px;color:var(--txt-mute);text-transform:uppercase;letter-spacing:1.6px}
+.brand-sub{font-size:11px;color:var(--txt-mute);text-transform:uppercase;letter-spacing:1.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw}
 
-nav.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+.top-actions{display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap}
+
+/* Linha 2 de Abas: abaixo da linha da logo/login, ocupando a largura total */
+.topbar-nav-row{
+  width:100%;display:flex;align-items:center;justify-content:center;
+  padding-top:4px;border-top:1px solid rgba(255,255,255,.07);box-sizing:border-box;
+}
+nav.tabs{
+  display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:center;
+  width:100%;margin:0 auto;-webkit-overflow-scrolling:touch;
+}
 nav.tabs button{
-  appearance:none;border:1px solid transparent;background:transparent;color:var(--txt-dim);
-  padding:8px 13px;border-radius:999px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;
-  transition:.16s;
+  appearance:none;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--txt-dim);
+  padding:7px 14px;border-radius:999px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;
+  transition:all .18s ease;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;
 }
-nav.tabs button:hover{color:#fff;background:var(--panel-2)}
+nav.tabs button:hover{
+  color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);transform:translateY(-1px);
+}
 nav.tabs button.on{
-  color:#fff;background:linear-gradient(180deg,rgba(47,107,255,.30),rgba(47,107,255,.14));
-  border-color:rgba(122,160,255,.5);box-shadow:0 0 0 1px rgba(255,255,255,.05),0 6px 18px rgba(47,107,255,.22);
+  color:#fff;background:linear-gradient(180deg,rgba(47,107,255,.38),rgba(47,107,255,.18));
+  border-color:rgba(122,160,255,.55);box-shadow:0 0 0 1px rgba(255,255,255,.05),0 4px 14px rgba(47,107,255,.30);
 }
-
-
-.top-actions{display:flex;gap:8px;align-items:center;margin-left:auto}
-nav.tabs{margin-left:auto}
-/* Em telas de computador, as abas ficam no centro real do cabeçalho.
-   Marca à esquerda e ações/usuário à direita ocupam colunas iguais. */
-@media (min-width:1101px){
-  .topbar-in{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:14px}
-  .topbar-in .brand{grid-column:1;grid-row:1}
-  .topbar-in nav.tabs{grid-column:2;grid-row:1;margin:0;justify-content:center;flex-wrap:nowrap}
-  .topbar-in .top-actions{grid-column:3;grid-row:1;margin:0;justify-self:end}
+@media (max-width:820px){
+  .topbar-nav-row{overflow-x:auto;-webkit-overflow-scrolling:touch;justify-content:flex-start}
+  nav.tabs{flex-wrap:nowrap;justify-content:flex-start;padding-bottom:2px}
 }
-@media (max-width:900px){ .top-actions{order:3;margin-left:auto} }
 
 /* ---------- Layout ---------- */
 .wrap{max-width:1280px;margin:0 auto;padding:22px 18px 80px}
@@ -1321,16 +1328,9 @@ tr.ex-linha .pres{opacity:.8}
 
 /* Com as duas abas novas o cabeçalho ficou com 10 botões: no computador eles
    passam a caber em duas linhas (em vez de espremer o nome do time). */
+/* Respiro para monitores grandes */
 @media (min-width:1101px){
-  .topbar-in{grid-template-columns:minmax(0,300px) minmax(0,1fr) minmax(0,auto)}
-  .topbar-in .brand-t{min-width:0}
-  .topbar-in .brand-name,.topbar-in .brand-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  .topbar-in nav.tabs{flex-wrap:wrap;justify-content:center;row-gap:4px}
-  nav.tabs button{padding:8px 11px;font-size:13px}
-}
-@media (min-width:1101px) and (max-width:1560px){
-  nav.tabs button{padding:7px 9px;font-size:12.5px}
-  .topbar-in{gap:10px}
+  nav.tabs button{padding:7px 15px;font-size:13px}
 }
 
 
@@ -2222,30 +2222,34 @@ img,canvas,svg,video{max-width:100%}
   <div id="campanha-bar-wrap"></div>
   <header class="topbar">
     <div class="topbar-in">
-      <div class="brand">
-        <div class="brand-crest" id="crest"><span class="brand-cr-text">CR</span></div>
-        <div class="brand-t">
-          <div class="brand-name" id="teamName">Meu Time</div>
-          <div class="brand-sub" id="teamSub">Futsal · sistema de evolução</div>
+      <div class="topbar-main-row">
+        <div class="brand">
+          <div class="brand-crest" id="crest"><span class="brand-cr-text">CR</span></div>
+          <div class="brand-t">
+            <div class="brand-name" id="teamName">Meu Time</div>
+            <div class="brand-sub" id="teamSub">Futsal · sistema de evolução</div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="btn sm" data-act="ajuda" title="Como usar o site">? Ajuda</button>
+          <button class="btn sm" data-act="baixar-site" title="Baixa um unico arquivo .html com o site e todos os dados dentro - o jeito mais seguro de salvar">💾 Salvar site</button>
+          <a class="by-maurer" href="https://wa.me/5551984754481?text=Oi%20Maurer!%20Vi%20o%20site%20do%20Ivoti%20City%20e%20quero%20um%20site%20assim%20para%20o%20meu%20time." target="_blank" rel="noopener" title="Site criado por Maurer — quer um site assim para o seu time? Chama no WhatsApp!">⚡ by <b>Maurer</b></a>
         </div>
       </div>
-      <div class="top-actions">
-        <button class="btn sm" data-act="ajuda" title="Como usar o site">? Ajuda</button>
-        <button class="btn sm" data-act="baixar-site" title="Baixa um unico arquivo .html com o site e todos os dados dentro - o jeito mais seguro de salvar">💾 Salvar site</button>
-        <a class="by-maurer" href="https://wa.me/5551984754481?text=Oi%20Maurer!%20Vi%20o%20site%20do%20Ivoti%20City%20e%20quero%20um%20site%20assim%20para%20o%20meu%20time." target="_blank" rel="noopener" title="Site criado por Maurer — quer um site assim para o seu time? Chama no WhatsApp!">⚡ by <b>Maurer</b></a>
+      <div class="topbar-nav-row">
+        <nav class="tabs" role="tablist">
+          <button data-tab="painel" class="on">Painel</button>
+          <button data-tab="elenco">Elenco</button>
+          <button data-tab="amistosos">Amistosos</button>
+          <button data-tab="marcar">Marcar amistoso</button>
+          <button data-tab="competicoes">Competições</button>
+          <button data-tab="rankings">Rankings</button>
+          <button data-tab="evolucao">Evolução</button>
+          <button data-tab="patrocinadores">Patrocinadores</button>
+          <button data-tab="time">Time</button>
+          <button data-tab="dados">Dados</button>
+        </nav>
       </div>
-      <nav class="tabs">
-        <button data-tab="painel" class="on">Painel</button>
-        <button data-tab="elenco">Elenco</button>
-        <button data-tab="amistosos">Amistosos</button>
-        <button data-tab="marcar">Marcar amistoso</button>
-        <button data-tab="competicoes">Competições</button>
-        <button data-tab="rankings">Rankings</button>
-        <button data-tab="evolucao">Evolução</button>
-        <button data-tab="patrocinadores">Patrocinadores</button>
-        <button data-tab="time">Time</button>
-        <button data-tab="dados">Dados</button>
-      </nav>
     </div>
   </header>
 
@@ -11704,4 +11708,4 @@ img,canvas,svg,video{max-width:100%}
   };
 })();
 
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d21ee295c8dff',t:'MTc5MDUzOTYyNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d2b7f486a8dff',t:'MTc5MDU0MDAxNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
