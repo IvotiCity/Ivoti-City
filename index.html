@@ -991,13 +991,14 @@ table .video-btn,.tw .video-btn{vertical-align:middle}
 .vi-txt i{font-style:normal;font-size:11.5px;color:var(--txt-mute)}
 .vi-txt u{text-decoration:none;font-size:11.5px;font-weight:700;color:#8ef2bd}
 .vi-txt u.vi-oculto{color:var(--txt-mute);font-weight:600}
-.visita-tops{display:flex;flex-direction:column;gap:7px}
-.vt-linha{display:flex;align-items:center;gap:9px;animation:sobeEntrada .45s ease both}
-.vt-i{font-size:15px;line-height:1;flex:0 0 auto}
-.vt-n{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}
-.vt-n b,.vt-n{font-size:13px;font-weight:700}
-.vt-n em{font-style:normal;font-size:11px;color:var(--txt-mute);font-weight:600}
-.vt-q{font-weight:800;color:var(--ok);font-size:14px}
+.visita-tops{display:flex;flex-direction:column;gap:5px}
+.vt-linha{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);font-size:12.5px;animation:sobeEntrada .45s ease both;transition:background .15s}
+.vt-linha:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15)}
+.vt-linha-info{display:flex;align-items:center;gap:7px;min-width:0;flex:1 1 auto;flex-wrap:wrap}
+.vt-i{font-size:14px;line-height:1;flex:0 0 auto}
+.vt-nome{font-weight:700;color:#fff;white-space:nowrap}
+.vt-count{font-weight:700;color:var(--ok);background:rgba(72,213,151,.12);border:1px solid rgba(72,213,151,.3);padding:1px 7px;border-radius:999px;font-size:11px;white-space:nowrap}
+.vt-ultima{font-style:italic;font-size:11.5px;color:var(--txt-mute);white-space:nowrap}
 
 /* ---------- animação de EVOLUÇÃO na carta (aba Elenco): gira e revela o novo overall ---------- */
 .evo-capa{position:absolute;inset:0;z-index:9;transform-style:preserve-3d;pointer-events:none;
@@ -5812,10 +5813,16 @@ img,canvas,svg,video{max-width:100%}
               (expandido ? '▲ Retrair' : '▼ Expandir (' + todosTops.length + ')') +
             '</button>' : '') +
         '</div>' +
-        (tops.length ? '<div class="visita-tops" style="' + (expandido ? 'max-height:360px;overflow-y:auto;' : '') + '">' + tops.map(function (x, i) {
-          return '<div class="vt-linha" style="animation-delay:' + (i * 45) + 'ms"><span class="vt-i">' + (x.tipo === 'atleta' ? '&#128100;' : (x.tipo === 'admin' ? '&#128273;' : '&#128064;')) + '</span>' +
-            '<span class="vt-n">' + esc(x.nome) + '<em>' + num(x.n, 1) + ' entrada(s)' + (x.ultima ? ' &middot; última ' + fmtDate(x.ultima) : '') + '</em></span>' +
-            '<span class="vt-q">' + num(x.n, 1) + '</span></div>';
+        (tops.length ? '<div class="visita-tops" style="' + (expandido ? 'max-height:340px;overflow-y:auto;' : '') + '">' + tops.map(function (x, i) {
+          var qtd = num(x.n, 1);
+          return '<div class="vt-linha" style="animation-delay:' + (i * 40) + 'ms">' +
+            '<div class="vt-linha-info">' +
+              '<span class="vt-i">' + (x.tipo === 'atleta' ? '&#128100;' : (x.tipo === 'admin' ? '&#128273;' : '&#128064;')) + '</span>' +
+              '<span class="vt-nome">' + esc(x.nome) + '</span>' +
+              '<span class="vt-count">' + qtd + ' ' + (qtd === 1 ? 'entrada' : 'entradas') + '</span>' +
+              (x.ultima ? '<span class="vt-ultima">&middot; última ' + fmtDate(x.ultima) + '</span>' : '') +
+            '</div>' +
+          '</div>';
         }).join('') +
         (todosTops.length > 4 ?
           '<div style="text-align:center;margin-top:8px;padding-top:6px;border-top:1px dashed var(--line)">' +
@@ -11708,4 +11715,4 @@ img,canvas,svg,video{max-width:100%}
   };
 })();
 
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d2b7f486a8dff',t:'MTc5MDU0MDAxNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d3ab8bde7f521',t:'MTc5MDU0MDY0MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
