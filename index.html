@@ -1087,57 +1087,194 @@ tr.ex-linha .pres{opacity:.8}
 /* =========================================================
    PALCO DOS PATROCINADORES (retângulo grande + carrossel)
    ========================================================= */
-.pat-palco{position:relative;border:1px solid rgba(216,192,122,.35);border-radius:18px;overflow:hidden;
-  background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.015) 60%),radial-gradient(700px 320px at 15% 0%,rgba(216,192,122,.14),transparent 70%);
-  box-shadow:0 26px 60px rgba(0,0,0,.42);margin-bottom:18px;min-height:330px}
-.pat-palco-vias{position:relative;overflow:hidden}
-.pat-slide{display:grid;grid-template-columns:minmax(220px,38%) 1fr;gap:22px;padding:26px 66px;align-items:center;
-  animation:patSlideIn .45s cubic-bezier(.2,.7,.3,1) both}
-.pat-slide.dir-esq{animation-name:patSlideInEsq}
-/* Mantém o conteúdo visível desde o primeiro quadro. Antes o slide começava
-   com opacity:0 e dava a impressão de um clarão/piscada a cada troca. */
-@keyframes patSlideIn{from{transform:translateX(46px) scale(.98)}to{transform:none}}
-@keyframes patSlideInEsq{from{transform:translateX(-46px) scale(.98)}to{transform:none}}
-.pat-palco-logo{height:210px;border-radius:16px;display:flex;align-items:center;justify-content:center;padding:18px;
-  /* mesma moldura dourada do escudo do time (.brand-crest) */
-  border:1px solid rgba(216,192,122,.45);
-  background:linear-gradient(160deg,#12203f,#070c18),radial-gradient(180px 110px at 50% 120%,rgba(216,192,122,.18),rgba(3,7,16,.6) 72%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 0 16px rgba(216,192,122,.30)}
-.pat-palco-logo:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 0 26px rgba(216,192,122,.45)}
-.pat-palco-logo img{max-width:100%;max-height:100%;object-fit:contain;animation:patFlutua 3.2s ease-in-out infinite}
-.pat-palco-logo .pat-logo-txt{font-size:56px;animation:patFlutua 3.2s ease-in-out infinite}
-.pat-palco-info{display:flex;flex-direction:column;gap:9px;min-width:0}
-.pat-palco-nome{font-size:27px;font-weight:900;letter-spacing:.3px;line-height:1.1}
-.pat-palco-cat{font-size:11.5px;color:var(--txt-mute);text-transform:uppercase;letter-spacing:1.6px;font-weight:800}
-.pat-palco-sobre{font-size:13.5px;color:var(--txt-dim);white-space:pre-wrap;line-height:1.55;max-height:110px;overflow:auto}
-.pat-seta{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:44px;height:44px;border-radius:50%;
-  border:1px solid rgba(216,192,122,.5);background:rgba(8,13,24,.78);color:var(--txt);font-size:20px;line-height:1;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
-.pat-seta:hover{background:rgba(216,192,122,.22);transform:translateY(-50%) scale(1.08)}
-.pat-seta.esq{left:12px}.pat-seta.dir{right:12px}
-.pat-pontos{display:flex;gap:7px;justify-content:center;align-items:center;padding:0 0 16px;flex-wrap:wrap}
-.pat-ponto{width:9px;height:9px;border-radius:50%;border:0;cursor:pointer;background:rgba(255,255,255,.22);transition:transform .15s,background .15s}
-.pat-ponto.on{background:var(--gold,#d8c07a);transform:scale(1.45)}
-.pat-contador{position:absolute;top:12px;right:16px;font-size:11.5px;letter-spacing:1.2px;color:var(--txt-mute);font-weight:800;z-index:4}
+/* =========================================================
+   NOVO PALCO 3D DE PATROCINADORES (STAGE DECK CAROUSEL)
+   Conforme desenho do usuário: Cartão Central em destaque +
+   Cartões laterais "Patrocinador que passou" (esquerda) e
+   "Próximo patrocinador" (direita) com setas e texto vertical.
+   ========================================================= */
+.pat-stage-wrapper{position:relative;width:100%;max-width:980px;margin:0 auto 20px;padding:6px 0 16px}
+.pat-stage-deck{display:flex;align-items:stretch;justify-content:center;gap:0;position:relative;min-height:490px}
 
-/* ---- animação de "contrato fechado" ao entrar na aba ---- */
-.pat-contrato{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:hidden;animation:patSome .5s ease 2.1s forwards}
-.pat-folha{position:absolute;top:0;bottom:0;width:50%;background:linear-gradient(180deg,#f6f1e2,#ddd5bd);
-  box-shadow:0 0 40px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
-.pat-folha.f1{left:0;transform-origin:left center;animation:patFolhaEsq 1.5s cubic-bezier(.6,.05,.25,1) both}
-.pat-folha.f2{right:0;transform-origin:right center;animation:patFolhaDir 1.5s cubic-bezier(.6,.05,.25,1) both}
-.pat-folha .linhas{width:70%;display:flex;flex-direction:column;gap:9px}
-.pat-folha .linhas span{height:7px;border-radius:4px;background:rgba(20,26,40,.16)}
-.pat-folha .linhas span:nth-child(4){width:55%}
-@keyframes patFolhaEsq{0%{transform:translateX(-102%) rotateY(-28deg)}55%{transform:none}100%{transform:translateX(-102%)}}
-@keyframes patFolhaDir{0%{transform:translateX(102%) rotateY(28deg)}55%{transform:none}100%{transform:translateX(102%)}}
-.pat-carimbo{position:absolute;left:50%;top:50%;z-index:2;transform:translate(-50%,-50%) rotate(-14deg) scale(2.4);opacity:0;
-  border:4px solid #c0392b;color:#c0392b;border-radius:10px;padding:10px 20px;font-weight:900;letter-spacing:3px;font-size:22px;
-  animation:patCarimbo 1.5s ease .75s both}
-@keyframes patCarimbo{0%{opacity:0;transform:translate(-50%,-50%) rotate(-14deg) scale(2.4)}
-  22%{opacity:1;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}
-  70%{opacity:1;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}
-  100%{opacity:0;transform:translate(-50%,-50%) rotate(-14deg) scale(1.15)}}
+/* Cartões Laterais (Anterior e Próximo) */
+.pat-side-card{flex:0 0 155px;max-width:175px;background:linear-gradient(165deg,rgba(14,24,50,0.92),rgba(8,13,26,0.97));
+  border:1px solid rgba(216,192,122,0.25);border-radius:18px;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;justify-content:space-between;padding:18px 8px;position:relative;z-index:1;
+  transition:transform .28s cubic-bezier(.2,.8,.2,1),border-color .25s ease,background .25s ease,box-shadow .25s ease,opacity .25s ease;
+  user-select:none;opacity:.82}
+.pat-side-card.esq{margin-right:-26px;border-top-right-radius:0;border-bottom-right-radius:0;transform:scale(.92)}
+.pat-side-card.dir{margin-left:-26px;border-top-left-radius:0;border-bottom-left-radius:0;transform:scale(.92)}
+.pat-side-card:hover{opacity:1;border-color:rgba(216,192,122,.6);background:linear-gradient(165deg,rgba(22,38,80,.98),rgba(12,20,40,.98));
+  box-shadow:0 12px 32px rgba(0,0,0,.55)}
+.pat-side-card.esq:hover{transform:scale(.95) translateX(-6px);z-index:2}
+.pat-side-card.dir:hover{transform:scale(.95) translateX(6px);z-index:2}
+
+/* Botão de seta lateral */
+.pat-side-arrow-btn{width:40px;height:40px;border-radius:50%;background:rgba(216,192,122,.15);
+  border:1px solid rgba(216,192,122,.45);color:var(--ouro,#d8c07a);display:flex;align-items:center;
+  justify-content:center;font-size:19px;transition:transform .2s,background .2s,color .2s;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.pat-side-card:hover .pat-side-arrow-btn{background:var(--ouro,#d8c07a);color:#05080f;transform:scale(1.12)}
+
+/* Texto Vertical Lateral */
+.pat-side-label-v{font-size:12.5px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--txt-dim,#a9b4c7);writing-mode:vertical-rl;text-align:center;margin:auto 0;padding:14px 0;transition:color .2s}
+.pat-side-card.esq .pat-side-label-v{transform:rotate(180deg)}
+.pat-side-card:hover .pat-side-label-v{color:var(--ouro,#d8c07a)}
+
+/* Mini preview lateral */
+.pat-side-preview{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;max-width:100%}
+.pat-side-preview-logo{width:38px;height:38px;border-radius:8px;background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;
+  overflow:hidden;font-size:13px;font-weight:900;color:var(--ouro)}
+.pat-side-preview-logo img{max-width:100%;max-height:100%;object-fit:contain}
+.pat-side-preview-name{font-size:11px;font-weight:700;color:var(--txt-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+
+/* Cartão Central (Destaque Principal com transição estilo virando página nos sentidos corretos) */
+.pat-main-card{flex:1 1 580px;max-width:680px;background:linear-gradient(165deg,rgba(16,26,52,0.98),rgba(9,14,28,0.99));
+  border:1.5px solid rgba(216,192,122,0.48);border-radius:20px;box-shadow:0 22px 55px rgba(0,0,0,.7),0 0 32px rgba(216,192,122,.14);
+  position:relative;z-index:3;display:flex;flex-direction:column;overflow:hidden;
+  transform-origin:right center;backface-visibility:hidden;
+  animation:patPageFlipProx .56s cubic-bezier(.22,1,.36,1) both}
+.pat-main-card.anim-esq{transform-origin:left center;animation-name:patPageFlipAnt}
+
+/* Transição ao avançar (Próximo Patrocinador): vem da DIREITA para a ESQUERDA */
+@keyframes patPageFlipProx{
+  0%{opacity:.25;transform:perspective(1200px) rotateY(-28deg) scale(.95) translateX(38px);box-shadow:26px 25px 45px rgba(0,0,0,.8)}
+  60%{opacity:1}
+  100%{opacity:1;transform:perspective(1200px) rotateY(0deg) scale(1) translateX(0);box-shadow:0 22px 55px rgba(0,0,0,.7),0 0 32px rgba(216,192,122,.14)}
+}
+
+/* Transição ao voltar (Patrocinador que Passou): vem da ESQUERDA para a DIREITA */
+@keyframes patPageFlipAnt{
+  0%{opacity:.25;transform:perspective(1200px) rotateY(28deg) scale(.95) translateX(-38px);box-shadow:-26px 25px 45px rgba(0,0,0,.8)}
+  60%{opacity:1}
+  100%{opacity:1;transform:perspective(1200px) rotateY(0deg) scale(1) translateX(0);box-shadow:0 22px 55px rgba(0,0,0,.7),0 0 32px rgba(216,192,122,.14)}
+}
+
+/* 1. Header do Card: Logo dos Patrocinadores (com animação flutuante contínua para cima e para baixo) */
+.pat-main-logo-box{width:100%;min-height:180px;max-height:230px;padding:22px 20px;display:flex;align-items:center;
+  justify-content:center;position:relative;background:radial-gradient(circle at center,rgba(22,38,78,.85) 0%,rgba(5,8,15,.96) 100%),#040710;
+  border-bottom:1px solid rgba(216,192,122,.28);box-shadow:inset 0 -10px 25px rgba(0,0,0,.4);overflow:hidden}
+
+@keyframes patLogoFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8.5px)}
+}
+
+.pat-main-logo-img{max-width:85%;max-height:150px;object-fit:contain;filter:drop-shadow(0 10px 22px rgba(0,0,0,.65));
+  animation:patLogoFloat 3.6s ease-in-out infinite;will-change:transform;transition:filter .3s ease}
+.pat-main-logo-box:hover .pat-main-logo-img{filter:drop-shadow(0 14px 28px rgba(216,192,122,.35))}
+
+.pat-main-logo-placeholder{font-size:52px;font-weight:900;letter-spacing:3px;color:var(--ouro,#d8c07a);
+  text-shadow:0 0 22px rgba(216,192,122,.55);animation:patLogoFloat 3.6s ease-in-out infinite;will-change:transform}
+.pat-main-badge-top{position:absolute;top:14px;left:16px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.pat-main-counter-top{position:absolute;top:14px;right:16px;font-size:11px;font-weight:800;letter-spacing:1px;color:var(--txt-mute);
+  background:rgba(0,0,0,.5);padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.12)}
+
+/* 2. Corpo do Card Central */
+.pat-main-body{padding:20px 24px 24px;display:flex;flex-direction:column;gap:14px}
+
+/* Título e Subtítulo */
+.pat-main-header-info{text-align:center;display:flex;flex-direction:column;gap:4px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:12px}
+.pat-main-nome{font-size:25px;font-weight:900;letter-spacing:.3px;color:#fff;line-height:1.15}
+.pat-main-subtitulo{font-size:12.5px;font-weight:700;color:var(--ouro,#d8c07a);text-transform:uppercase;letter-spacing:1.4px}
+
+/* Informações sobre */
+.pat-main-info-section{display:flex;flex-direction:column;gap:4px}
+.pat-main-section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--txt-mute);
+  display:flex;align-items:center;gap:6px}
+.pat-main-sobre{font-size:13.5px;line-height:1.55;color:var(--txt-dim);background:rgba(255,255,255,.03);
+  padding:11px 15px;border-radius:12px;border:1px solid rgba(255,255,255,.06);white-space:pre-wrap}
+
+/* Destaques e Benefícios */
+.pat-main-extras-box{display:flex;flex-direction:column;gap:8px}
+.pat-main-beneficios{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;
+  background:linear-gradient(90deg,rgba(216,192,122,.12),rgba(216,192,122,.03));border-left:3px solid var(--ouro,#d8c07a);
+  font-size:12.5px;color:var(--txt)}
+
+/* Ações Rápidas */
+.pat-main-actions-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:2px 0}
+
+/* Seção de Contatos e Endereço (Rodapé do Card) */
+.pat-main-contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:9px;
+  background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 15px;font-size:12.5px}
+.pat-contact-item{display:flex;align-items:flex-start;gap:8px}
+.pat-contact-item .ico{font-size:16px;line-height:1.2}
+.pat-contact-item .cnt{display:flex;flex-direction:column;min-width:0}
+.pat-contact-item .cnt label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--txt-mute);font-weight:700}
+.pat-contact-item .cnt span,.pat-contact-item .cnt a{color:var(--txt);font-weight:600;word-break:break-word}
+.pat-contact-item .cnt a{color:var(--azul-2,#5b8cff);text-decoration:none}
+.pat-contact-item .cnt a:hover{text-decoration:underline}
+
+/* Barra de Ações do Administrador */
+.pat-main-admin-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;
+  padding-top:10px;border-top:1px dashed rgba(255,255,255,.12)}
+
+/* Controles Inferiores / Barra de Seleção Rápida */
+.pat-bottom-controls{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:16px}
+.pat-stage-dots{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.pat-stage-dot{width:10px;height:10px;border-radius:50%;border:0;cursor:pointer;background:rgba(255,255,255,.2);
+  transition:transform .2s ease,background .2s ease}
+.pat-stage-dot.on{background:var(--ouro,#d8c07a);transform:scale(1.45);box-shadow:0 0 10px rgba(216,192,122,.6)}
+
+.pat-quick-nav{display:flex;gap:7px;overflow-x:auto;max-width:100%;padding:4px 8px 8px;scrollbar-width:thin}
+.pat-quick-chip{flex:0 0 auto;padding:6px 13px;border-radius:22px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);color:var(--txt-dim);font-size:12px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:6px;transition:all .2s ease}
+.pat-quick-chip:hover{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(216,192,122,.4)}
+.pat-quick-chip.on{background:linear-gradient(135deg,rgba(216,192,122,.25),rgba(47,107,255,.25));
+  border-color:var(--ouro,#d8c07a);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+
+/* Responsividade Mobile */
+@media (max-width:720px){
+  .pat-side-card{flex:0 0 54px;padding:10px 2px}
+  .pat-side-card.esq{margin-right:-10px}
+  .pat-side-card.dir{margin-left:-10px}
+  .pat-side-preview{display:none}
+  .pat-side-label-v{font-size:10.5px;letter-spacing:1px}
+  .pat-main-card{flex:1 1 100%}
+  .pat-main-body{padding:14px 12px 18px}
+  .pat-main-nome{font-size:20px}
+}
+
+/* ---- animação de "contrato fechado" ao entrar na aba (cerimônia prolongada e elegante) ---- */
+.pat-contrato{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:hidden;animation:patSome .65s ease 4.3s forwards}
+.pat-folha{position:absolute;top:0;bottom:0;width:50%;background:linear-gradient(180deg,#fcf8ec,#ded6c0);
+  box-shadow:0 0 50px rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center}
+.pat-folha.f1{left:0;transform-origin:left center;animation:patFolhaEsq 4.3s cubic-bezier(.65,.05,.35,1) both}
+.pat-folha.f2{right:0;transform-origin:right center;animation:patFolhaDir 4.3s cubic-bezier(.65,.05,.35,1) both}
+.pat-folha .linhas{width:70%;display:flex;flex-direction:column;gap:10px}
+.pat-folha .linhas span{height:8px;border-radius:4px;background:rgba(20,26,40,.18)}
+.pat-folha .linhas span:nth-child(2){width:85%}
+.pat-folha .linhas span:nth-child(4){width:60%}
+
+@keyframes patFolhaEsq{
+  0%{transform:translateX(-102%) rotateY(-26deg);opacity:.8}
+  18%{transform:none;opacity:1}
+  84%{transform:none;opacity:1}
+  100%{transform:translateX(-104%) rotateY(-20deg);opacity:0}
+}
+@keyframes patFolhaDir{
+  0%{transform:translateX(102%) rotateY(26deg);opacity:.8}
+  18%{transform:none;opacity:1}
+  84%{transform:none;opacity:1}
+  100%{transform:translateX(104%) rotateY(20deg);opacity:0}
+}
+
+.pat-carimbo{position:absolute;left:50%;top:50%;z-index:2;transform:translate(-50%,-50%) rotate(-13deg) scale(2.6);opacity:0;
+  border:4px double #c0392b;color:#c0392b;background:rgba(255,255,255,.05);border-radius:12px;padding:12px 24px;
+  font-weight:900;letter-spacing:3.5px;font-size:24px;text-shadow:0 0 12px rgba(192,57,43,.4);
+  box-shadow:inset 0 0 16px rgba(192,57,43,.25),0 10px 30px rgba(0,0,0,.45);
+  animation:patCarimbo 3.8s ease .65s both}
+
+@keyframes patCarimbo{
+  0%{opacity:0;transform:translate(-50%,-50%) rotate(-13deg) scale(2.6)}
+  14%{opacity:1;transform:translate(-50%,-50%) rotate(-13deg) scale(1);box-shadow:inset 0 0 20px rgba(192,57,43,.4),0 0 35px rgba(192,57,43,.7)}
+  18%{transform:translate(-50%,-50%) rotate(-13deg) scale(1.05)}
+  22%{transform:translate(-50%,-50%) rotate(-13deg) scale(1)}
+  82%{opacity:1;transform:translate(-50%,-50%) rotate(-13deg) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) rotate(-13deg) scale(1.15)}
+}
 @keyframes patSome{to{opacity:0;visibility:hidden}}
 @media (max-width:760px){
   .pat-slide{grid-template-columns:1fr;padding:22px 16px 10px;gap:14px}
@@ -7075,81 +7212,158 @@ img,canvas,svg,video{max-width:100%}
   function palcoPatrocinadores(lista) {
     if (patIdx >= lista.length || patIdx < 0) patIdx = 0;
     var p = lista[patIdx];
+    var n = lista.length;
     var adm = podeEditar();
-    var ini = String(p.nome || '?').replace(/[^A-Za-zÀ-ÿ0-9]/g, '').slice(0, 2).toUpperCase() || 'PT';
-    var wa = linkWhatsApp(p.whats, 'Olá! Falo pelo ' + nomeNossoTime() + '.');
-    var linha = function (rot, valor) {
-      if (!valor) return '';
-      return '<div class="pat-linha"><i>' + rot + '</i><b>' + valor + '</b></div>';
-    };
 
-    var h = '<div class="pat-palco">';
+    var prevIdx = (patIdx - 1 + n) % n;
+    var nextIdx = (patIdx + 1) % n;
+    var pPrev = lista[prevIdx];
+    var pNext = lista[nextIdx];
+
+    var ini = String(p.nome || '?').replace(/[^A-Za-zÀ-ÿ0-9]/g, '').slice(0, 2).toUpperCase() || 'PT';
+    var iniPrev = String(pPrev.nome || '?').replace(/[^A-Za-zÀ-ÿ0-9]/g, '').slice(0, 2).toUpperCase() || 'PT';
+    var iniNext = String(pNext.nome || '?').replace(/[^A-Za-zÀ-ÿ0-9]/g, '').slice(0, 2).toUpperCase() || 'PT';
+
+    var wa = linkWhatsApp(p.whats, 'Olá! Vi o patrocínio no site do ' + nomeNossoTime() + ' e gostaria de mais informações.');
+
+    var h = '<div class="pat-stage-wrapper pat-palco">';
 
     /* animação de fechamento de contrato (só na entrada da aba) */
     if (!patContratoFeito) {
       h += '<div class="pat-contrato">' +
         '<div class="pat-folha f1"><div class="linhas"><span></span><span></span><span></span><span></span></div></div>' +
         '<div class="pat-folha f2"><div class="linhas"><span></span><span></span><span></span><span></span></div></div>' +
-        '<div class="pat-carimbo">CONTRATO FECHADO</div>' +
+        '<div class="pat-carimbo">&#9733; CONTRATO FECHADO &#9733;</div>' +
         '</div>';
     }
 
-    h += '<div class="pat-contador">' + (patIdx + 1) + ' / ' + lista.length + '</div>';
+    /* 3D Stage Deck Container (conforme desenho do usuário) */
+    h += '<div class="pat-stage-deck">';
 
-    if (lista.length > 1) {
-      h += '<button class="pat-seta esq" data-act="pat-ant" title="Ver o patrocinador anterior">&#10094;</button>' +
-           '<button class="pat-seta dir" data-act="pat-prox" title="Ver o próximo patrocinador">&#10095;</button>';
+    /* ---- 1. CARTÃO DA ESQUERDA: "Patrocinador que passou" ---- */
+    if (n > 1) {
+      h += '<div class="pat-side-card esq" data-act="pat-ant" title="Voltar para: ' + esc(pPrev.nome || 'Patrocinador anterior') + '">' +
+        '<div class="pat-side-arrow-btn" aria-label="Anterior">&#10094;</div>' +
+        '<div class="pat-side-label-v">Patrocinador que passou</div>' +
+        '<div class="pat-side-preview">' +
+          '<div class="pat-side-preview-logo">' +
+            (pPrev.logo ? '<img alt="" src="' + esc(pPrev.logo) + '">' : '<span>' + esc(iniPrev) + '</span>') +
+          '</div>' +
+          '<div class="pat-side-preview-name">' + esc(pPrev.nome || 'Anterior') + '</div>' +
+        '</div>' +
+      '</div>';
     }
 
-    h += '<div class="pat-palco-vias"><div class="pat-slide' + (patDir === 'esq' ? ' dir-esq' : '') + '">' +
-      '<div class="pat-palco-logo">' +
-      (p.logo ? '<img alt="' + esc(p.nome) + '" src="' + esc(p.logo) + '">'
-              : '<span class="pat-logo-txt">' + esc(ini) + '</span>') +
+    /* ---- 2. CARTÃO CENTRAL EM DESTAQUE (conforme desenho do usuário) ---- */
+    h += '<div class="pat-main-card' + (patDir === 'esq' ? ' anim-esq' : '') + '">' +
+      /* 2.1 Logo dos patrocinadores */
+      '<div class="pat-main-logo-box">' +
+        '<span class="badge ok pat-main-badge-top">&#9733; Patrocinador Oficial</span>' +
+        '<span class="pat-main-counter-top">' + (patIdx + 1) + ' / ' + n + '</span>' +
+        (p.logo
+          ? '<img class="pat-main-logo-img" alt="' + esc(p.nome) + '" src="' + esc(p.logo) + '">'
+          : '<div class="pat-main-logo-placeholder">' + esc(ini) + '</div>') +
       '</div>' +
-      '<div class="pat-palco-info">' +
-      '<div class="pat-palco-cat">' + esc(p.categoria || 'Patrocinador') + '</div>' +
-      '<div class="pat-palco-nome">' + esc(p.nome || 'Sem nome') + '</div>' +
-      '<div class="inline">' +
-      (p.status === 'ex' ? '<span class="badge ex-badge">já fez parte</span>' : '<span class="badge ok">patrocinador atual</span>') +
-      (p.desde ? '<span class="badge">desde ' + esc(p.desde) + '</span>' : '') +
-      (p.status === 'ex' && p.ate ? '<span class="badge">até ' + esc(p.ate) + '</span>' : '') +
-      '</div>' +
-      (p.desc ? '<div class="pat-palco-sobre">' + esc(p.desc) + '</div>' : '') +
-      linha('Endereço', esc([p.endereco, p.cidade].filter(Boolean).join(' - '))) +
-      linha('Telefone', esc(p.tel)) +
-      linha('WhatsApp', esc(p.whats)) +
-      linha('E-mail', p.email ? '<a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a>' : '') +
-      linha('Instagram', p.insta ? '<a target="_blank" rel="noopener" href="' + esc(linkInstagram(p.insta)) + '">' + esc(p.insta) + '</a>' : '') +
-      linha('Site', p.site ? '<a target="_blank" rel="noopener" href="' + esc(linkSite(p.site)) + '">' + esc(p.site) + '</a>' : '') +
-      (p.obs ? linha('Observação', esc(p.obs)) : '') +
-      '<div class="pat-acoes">' +
-      (p.endereco ? linkExterno(linkMapa([p.endereco, p.cidade].filter(Boolean).join(', ')), '&#128205; Ver no mapa', 'btn sm') : '') +
-      (wa ? linkExterno(wa, '&#128172; WhatsApp', 'btn sm ok') : '') +
-      (p.insta ? linkExterno(linkInstagram(p.insta), '&#128247; Instagram', 'btn sm') : '') +
-      '</div>' +
-      (adm ? '<div class="pat-acoes">' +
-        '<button class="btn sm pri" data-act="pat-editar" data-id="' + p.id + '">&#9998; Editar</button>' +
-        '<button class="btn sm" data-act="pat-status" data-id="' + p.id + '">' +
-        (p.status === 'ex' ? '&#8634; Voltou a patrocinar' : '&#10003; Marcar como “já fez parte”') + '</button>' +
-        '<button class="btn sm danger" data-act="pat-excluir" data-id="' + p.id + '">&#128465; Excluir</button>' +
+
+      /* 2.2 Corpo do Card */
+      '<div class="pat-main-body">' +
+        /* Título com o nome + Subtítulo */
+        '<div class="pat-main-header-info">' +
+          '<div class="pat-main-nome">' + esc(p.nome || 'Sem nome') + '</div>' +
+          '<div class="pat-main-subtitulo">' + esc(p.categoria || 'Parceiro Oficial • ' + nomeNossoTime()) + '</div>' +
+          '<div class="inline" style="justify-content:center;margin-top:4px">' +
+            (p.desde ? '<span class="badge" style="font-size:11px">Parceria desde ' + esc(p.desde) + '</span>' : '') +
+            (p.status === 'ex' ? '<span class="badge ex-badge">ex-patrocinador</span>' : '<span class="badge ok" style="font-size:11px">&#10004; Ativo</span>') +
+          '</div>' +
+        '</div>' +
+
+        /* Informações sobre */
+        '<div class="pat-main-info-section">' +
+          '<div class="pat-main-section-title">&#128196; Informações sobre a empresa</div>' +
+          '<div class="pat-main-sobre">' +
+            (p.desc ? esc(p.desc) : 'Empresa parceira do ' + esc(nomeNossoTime()) + ', incentivando o esporte local e caminhando junto com os nossos atletas.') +
+          '</div>' +
+        '</div>' +
+
+        /* Coloque mais coisas que você achar necessário: Destaques & Benefícios */
+        '<div class="pat-main-extras-box">' +
+          '<div class="pat-main-beneficios">' +
+            '<span style="font-size:18px">&#127873;</span>' +
+            '<div><b>Apoio &amp; Benefício aos Torcedores:</b> Diga que viu no site do <b>' + esc(nomeNossoTime()) + '</b> ao visitar o estabelecimento!</div>' +
+          '</div>' +
+        '</div>' +
+
+        /* Botões de Ações Rápidas */
+        '<div class="pat-main-actions-grid">' +
+          (wa ? linkExterno(wa, '&#128172; WhatsApp Comercial', 'btn sm ok') : '') +
+          (p.insta ? linkExterno(linkInstagram(p.insta), '&#128247; Instagram @' + esc(p.insta.replace(/^@/, '')), 'btn sm') : '') +
+          (p.site ? linkExterno(linkSite(p.site), '&#127760; Visitar Site', 'btn sm') : '') +
+          (p.endereco ? linkExterno(linkMapa([p.endereco, p.cidade].filter(Boolean).join(', ')), '&#128205; Ver no Mapa', 'btn sm') : '') +
+        '</div>' +
+
+        /* Endereço - Contato - e mais coisas importantes */
+        '<div class="pat-main-contact-grid">' +
+          (p.endereco ? '<div class="pat-contact-item"><span class="ico">&#128205;</span><div class="cnt"><label>Endereço</label><span>' + esc([p.endereco, p.cidade].filter(Boolean).join(' - ')) + '</span></div></div>' : '') +
+          (p.tel ? '<div class="pat-contact-item"><span class="ico">&#128222;</span><div class="cnt"><label>Telefone</label><span>' + esc(p.tel) + '</span></div></div>' : '') +
+          (p.whats ? '<div class="pat-contact-item"><span class="ico">&#128172;</span><div class="cnt"><label>WhatsApp</label><span>' + esc(p.whats) + '</span></div></div>' : '') +
+          (p.email ? '<div class="pat-contact-item"><span class="ico">&#9993;</span><div class="cnt"><label>E-mail</label><a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a></div></div>' : '') +
+          (p.obs ? '<div class="pat-contact-item" style="grid-column:1/-1"><span class="ico">&#128221;</span><div class="cnt"><label>Observação / Horário</label><span>' + esc(p.obs) + '</span></div></div>' : '') +
+          (!p.endereco && !p.tel && !p.whats && !p.email ? '<div class="pat-contact-item" style="grid-column:1/-1"><span class="ico">&#128077;</span><div class="cnt"><label>Contato</label><span>Fale com a diretoria do time para conectar com este parceiro.</span></div></div>' : '') +
+        '</div>' +
+
+        /* Barra de Ações do Administrador */
+        (adm ? '<div class="pat-main-admin-bar">' +
+          '<button class="btn sm pri" data-act="pat-editar" data-id="' + p.id + '">&#9998; Editar dados</button>' +
+          '<button class="btn sm" data-act="pat-logo" data-id="' + p.id + '">&#128247; Trocar logo</button>' +
+          '<button class="btn sm" data-act="pat-status" data-id="' + p.id + '">' +
+            (p.status === 'ex' ? '&#8634; Reativar como atual' : '&#10003; Mover para ex-patrocinadores') + '</button>' +
+          '<button class="btn sm danger" data-act="pat-excluir" data-id="' + p.id + '">&#128465; Excluir</button>' +
         '</div>' : '') +
-      '</div></div></div>';
 
-    if (lista.length > 1) {
-      h += '<div class="pat-pontos">';
-      lista.forEach(function (x, i) {
-        h += '<button class="pat-ponto' + (i === patIdx ? ' on' : '') + '" data-act="pat-ir" data-i="' + i +
-          '" title="' + esc(x.nome || ('Patrocinador ' + (i + 1))) + '"></button>';
-      });
-      h += '</div>';
+      '</div>' + /* fim pat-main-body */
+    '</div>'; /* fim pat-main-card */
+
+    /* ---- 3. CARTÃO DA DIREITA: "Próximo patrocinador" ---- */
+    if (n > 1) {
+      h += '<div class="pat-side-card dir" data-act="pat-prox" title="Avançar para: ' + esc(pNext.nome || 'Próximo patrocinador') + '">' +
+        '<div class="pat-side-arrow-btn" aria-label="Próximo">&#10095;</div>' +
+        '<div class="pat-side-label-v">Próximo patrocinador</div>' +
+        '<div class="pat-side-preview">' +
+          '<div class="pat-side-preview-logo">' +
+            (pNext.logo ? '<img alt="" src="' + esc(pNext.logo) + '">' : '<span>' + esc(iniNext) + '</span>') +
+          '</div>' +
+          '<div class="pat-side-preview-name">' + esc(pNext.nome || 'Próximo') + '</div>' +
+        '</div>' +
+      '</div>';
     }
 
-    return h + '</div>';
+    h += '</div>'; /* fim pat-stage-deck */
+
+    /* ---- 4. CONTROLES INFERIORES: PONTOS + BARRA RÁPIDA DE TODOS OS PATROCINADORES ---- */
+    if (n > 1) {
+      h += '<div class="pat-bottom-controls">' +
+        /* Pontos indicadores */
+        '<div class="pat-stage-dots">' +
+          lista.map(function (x, i) {
+            return '<button class="pat-stage-dot' + (i === patIdx ? ' on' : '') + '" data-act="pat-ir" data-i="' + i + '" title="' + esc(x.nome || ('Patrocinador ' + (i + 1))) + '"></button>';
+          }).join('') +
+        '</div>' +
+        /* Barra de rolagem rápida com mini-chips de todos os patrocinadores */
+        '<div class="pat-quick-nav">' +
+          lista.map(function (x, i) {
+            return '<button class="pat-quick-chip' + (i === patIdx ? ' on' : '') + '" data-act="pat-ir" data-i="' + i + '">' +
+              '<span style="color:var(--ouro);font-size:11px">#' + (i + 1) + '</span> ' + esc(x.nome || 'Parceiro') +
+            '</button>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }
+
+    h += '</div>'; /* fim pat-stage-wrapper */
+    return h;
   }
 
-  /* Troca somente o palco. Antes cada avanço remontava a aba inteira (título,
-     cards, mensagens e imagens), o que podia produzir uma piscada curta,
-     principalmente no celular. */
+  /* Troca somente o palco. */
   function atualizarPalcoPatrocinadores() {
     var antigo = document.querySelector('#pg-patrocinadores .pat-palco');
     var atuais = state.patrocinadores.filter(function (x) { return x.status !== 'ex'; });
@@ -7161,7 +7375,6 @@ img,canvas,svg,video{max-width:100%}
     var novo = caixa.firstElementChild;
     if (!novo) return;
 
-    /* preserva a altura durante a entrada para a página não dar um pulo */
     if (altura) novo.style.minHeight = altura + 'px';
     antigo.parentNode.replaceChild(novo, antigo);
     setTimeout(function () {
@@ -7189,8 +7402,8 @@ img,canvas,svg,video{max-width:100%}
       var palco = document.querySelector('#pg-patrocinadores .pat-palco');
       if (!palco) { clearInterval(patTimer); patTimer = null; return; }
       var md = document.getElementById('modal');
-      if (md && /(^|\s)on(\s|$)/.test(md.className || '')) return;   /* não anda com ficha aberta */
-      if (palco.matches(':hover')) return;                 /* nem enquanto a pessoa está lendo */
+      if (md && /(^|\s)on(\s|$)/.test(md.className || '')) return;
+      if (palco.matches(':hover')) return;
       patAndar(1);
     }, 7000);
   }
@@ -9218,6 +9431,10 @@ img,canvas,svg,video{max-width:100%}
 
     document.addEventListener('keydown', function (ev) {
       if (ev.key === 'Escape') { closeModal(); return; }
+      if (state && state.ui && state.ui.tab === 'patrocinadores' && !document.querySelector('#modal.on')) {
+        if (ev.key === 'ArrowLeft') { patAndar(-1); return; }
+        if (ev.key === 'ArrowRight') { patAndar(1); return; }
+      }
       if (ev.key === 'Enter' && ev.target && ev.target.id === 'atleta-senha') {
         ev.preventDefault();
         var bt = document.querySelector('[data-act="login-senha-atleta"]');
@@ -9497,4 +9714,4 @@ img,canvas,svg,video{max-width:100%}
   };
 })();
 
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41cb29b7e758dff',t:'MTc5MDUzNTA2NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41cd50139ae8dff',t:'MTc5MDUzNjQ3Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
