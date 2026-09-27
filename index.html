@@ -39,7 +39,7 @@
 }
 
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100vw;width:100%;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg-0)}
 /* Fundo em pseudo-elemento fixo: mesmo visual do background-attachment:fixed,
    mas com scroll liso no celular */
@@ -200,6 +200,8 @@ input[type=file]{font-size:12px;padding:7px}
 .btn.pri:hover{filter:brightness(1.12)}
 .btn.ok{background:linear-gradient(180deg,#2fae78,#1c7350);border-color:rgba(120,235,185,.4);color:#fff}
 .btn.danger{background:linear-gradient(180deg,#b3423f,#7c2a28);border-color:rgba(255,150,150,.35);color:#fff}
+.btn.danger-soft{background:rgba(255,107,107,.14);border-color:rgba(255,107,107,.38);color:#ff9b9b}
+.btn.danger-soft:hover{background:rgba(255,107,107,.26);border-color:rgba(255,107,107,.6);color:#fff}
 .btn.ghost{background:transparent;border-color:var(--line)}
 .btn.sm{padding:6px 11px;font-size:12.5px}
 .btn.xs{padding:4px 8px;font-size:11.5px;border-radius:8px}
@@ -1225,16 +1227,20 @@ tr.ex-linha .pres{opacity:.8}
 .pat-quick-chip.on{background:linear-gradient(135deg,rgba(216,192,122,.25),rgba(47,107,255,.25));
   border-color:var(--ouro,#d8c07a);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.4)}
 
-/* Responsividade Mobile */
+/* Responsividade Mobile e Tablet para Palco 3D de Patrocinadores */
 @media (max-width:720px){
-  .pat-side-card{flex:0 0 54px;padding:10px 2px}
-  .pat-side-card.esq{margin-right:-10px}
-  .pat-side-card.dir{margin-left:-10px}
+  .pat-stage-deck{min-height:430px;overflow:hidden;width:100%}
+  .pat-side-card{flex:0 0 46px;min-width:44px;max-width:50px;padding:10px 2px}
+  .pat-side-card.esq{margin-right:-8px}
+  .pat-side-card.dir{margin-left:-8px}
   .pat-side-preview{display:none}
-  .pat-side-label-v{font-size:10.5px;letter-spacing:1px}
-  .pat-main-card{flex:1 1 100%}
-  .pat-main-body{padding:14px 12px 18px}
-  .pat-main-nome{font-size:20px}
+  .pat-side-label-v{font-size:10px;letter-spacing:1px}
+  .pat-side-arrow-btn{width:34px;height:34px;font-size:15px}
+  .pat-main-card{flex:1 1 0;min-width:0;max-width:100%}
+  .pat-main-logo-box{min-height:150px;max-height:190px;padding:16px 12px}
+  .pat-main-body{padding:14px 12px 18px;gap:12px}
+  .pat-main-nome{font-size:19.5px}
+  .pat-main-contact-grid{grid-template-columns:1fr;padding:10px 12px}
 }
 
 /* ---- animação de "contrato fechado" ao entrar na aba (cerimônia prolongada e elegante) ---- */
@@ -1382,9 +1388,10 @@ img,canvas,svg,video{max-width:100%}
   .stat .k{font-size:10.5px}
   table{font-size:12px}
   th,td{padding:7px 8px!important}
-  .modal-box{width:calc(100vw - 16px);max-width:calc(100vw - 16px);padding:14px}
+  .modal{padding:env(safe-area-inset-top, 12px) env(safe-area-inset-right, 8px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 8px)}
+  .modal-box{width:calc(100vw - 16px);max-width:calc(100vw - 16px);padding:14px;max-height:calc(100vh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch}
   .modal-head h3{font-size:16px}
-  input,select,textarea{font-size:16px}   /* evita o zoom automático do iPhone */
+  input,select,textarea{font-size:16px !important}   /* evita o zoom automático do iPhone */
   .f{min-width:0}
   /* A área da conta ocupa uma linha própria no celular. Assim os botões
      Trocar/Sair nunca são empurrados para fora da tela. */
@@ -1634,12 +1641,556 @@ img,canvas,svg,video{max-width:100%}
 .fard-up-card:hover{border-color:var(--azul-2);background:rgba(47,107,255,.05)}
 .fard-up-card.has-file{border-style:solid;border-color:var(--ok);background:rgba(72,213,151,.05)}
 
+
+/* ---------- Campanhas de Conscientização dos Meses (Setembro Amarelo, Outubro Rosa, etc.) ---------- */
+.campanha-bar {
+  position: relative;
+  z-index: 45;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.campanha-bar-in {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.campanha-ribbon-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2.5px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  animation: pulseFloat 3s ease-in-out infinite;
+}
+.campanha-bar-msg {
+  color: #f8fafc;
+  font-weight: 600;
+  line-height: 1.35;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.campanha-bar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.campanha-btn-info {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 3px 9px;
+  font-size: 11.5px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.15s;
+  white-space: nowrap;
+}
+.campanha-btn-info:hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: #ffffff;
+  transform: scale(1.04);
+}
+.campanha-close-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 3px 7px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: 0.15s;
+}
+.campanha-close-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.brand-crest {
+  position: relative !important;
+}
+.crest-ribbon-pin {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  animation: pulseFloat 3s ease-in-out infinite;
+  z-index: 5;
+  transition: transform 0.2s;
+}
+.crest-ribbon-pin:hover {
+  transform: scale(1.22);
+}
+
+@keyframes pulseFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.08); }
+}
+
+/* Modal de Campanha */
+.campanha-modal-banner {
+  border-radius: 14px;
+  padding: 20px 18px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.campanha-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.campanha-modal-ribbon {
+  font-size: 36px;
+  line-height: 1;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+  animation: pulseFloat 3s ease-in-out infinite;
+}
+.campanha-modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+.campanha-modal-sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  margin-top: 2px;
+}
+.campanha-modal-quote {
+  font-size: 14.5px;
+  font-weight: 600;
+  font-style: italic;
+  color: #ffffff;
+  background: rgba(0,0,0,0.22);
+  border-left: 4px solid #ffffff;
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
+.campanha-sec-title {
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--txt);
+  margin: 16px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.campanha-tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.campanha-tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--txt);
+}
+.campanha-tip-bullet {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.campanha-support-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.campanha-support-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+.campanha-support-card:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-2px);
+}
+.campanha-support-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+}
+.campanha-support-contact {
+  font-size: 12px;
+  color: var(--ouro);
+  font-weight: 600;
+}
+.campanha-meses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.campanha-mes-pill {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line-2);
+  background: rgba(255,255,255,0.04);
+  color: var(--txt);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: 0.15s;
+  text-align: center;
+}
+.campanha-mes-pill:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+}
+.campanha-mes-pill.ativo {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.18);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.25);
+}
+
+@media (max-width: 600px) {
+  .campanha-bar {
+    padding: 6px 8px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .campanha-bar.dual {
+    padding: 6px 8px 8px;
+  }
+  .campanha-bar-in {
+    gap: 5px;
+  }
+  .campanha-bar-msg {
+    font-size: 11px;
+    line-height: 1.32;
+  }
+  .campanha-ribbon-tag {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  .campanha-bar-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 2px;
+    gap: 4px;
+  }
+  .campanha-btn-info {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  .campanha-modal-title {
+    font-size: 19px;
+  }
+  .campanha-modal-quote {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+}
+
+
+/* ---------- Sistema de Aniversários dos Atletas ---------- */
+.niver-modal-box {
+  text-align: center;
+  padding: 10px 8px 18px;
+  position: relative;
+  overflow: hidden;
+}
+.niver-confetti-bg {
+  font-size: 22px;
+  letter-spacing: 6px;
+  opacity: 0.9;
+  animation: pulseFloat 2.5s ease-in-out infinite;
+  margin-bottom: 12px;
+}
+.niver-avatar-ring {
+  width: 106px;
+  height: 106px;
+  margin: 0 auto 16px;
+  position: relative;
+  border-radius: 50%;
+  padding: 4px;
+  background: linear-gradient(135deg, #ffd700, #ff6b6b, #48d597, #5b8cff);
+  box-shadow: 0 0 28px rgba(255, 215, 0, 0.6);
+}
+.niver-avatar-ring img, .niver-avatar-ring .niver-avatar-ph {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-1);
+  display: block;
+}
+.niver-avatar-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--ouro);
+}
+.niver-badge-ribbon {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ffd700, #f59e0b);
+  color: #0c162c;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+}
+.niver-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffd700;
+  margin: 0 0 4px;
+  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
+}
+.niver-subtitle {
+  font-size: 14px;
+  color: #f1f5f9;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.niver-msg-box {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #f8fafc;
+  text-align: center;
+  margin-bottom: 18px;
+  box-shadow: inset 0 0 16px rgba(255, 215, 0, 0.08);
+}
+.niver-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Selo de Aniversário nas cartas de atletas */
+.selo-aniversario {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  background: linear-gradient(135deg, #ffd700, #f59e0b);
+  color: #0c162c;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.65);
+  animation: pulseFloat 2s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.selo-aniversario.sm {
+  font-size: 9px;
+  padding: 2px 6px;
+  top: 6px;
+  right: 6px;
+}
+.fut-card.aniversariante-card {
+  box-shadow: 0 0 26px rgba(255, 215, 0, 0.5) !important;
+  border-color: rgba(255, 215, 0, 0.85) !important;
+}
+
+/* Banner Geral de Aniversário na página */
+.aniversario-geral-bar {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.24), rgba(245, 158, 11, 0.16));
+  border: 1px solid rgba(255, 215, 0, 0.55);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  animation: fadeSlideDown 0.4s ease both;
+}
+.aniversario-geral-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.aniversario-geral-av {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid #ffd700;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  background: var(--bg-1);
+}
+.aniversario-geral-av img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.aniversario-geral-av span {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--ouro);
+}
+.aniversario-geral-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #ffd700;
+  letter-spacing: 0.3px;
+}
+.aniversario-geral-sub {
+  font-size: 13px;
+  color: #f8fafc;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+/* Painel de Aniversariantes */
+.niver-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line);
+  margin-bottom: 6px;
+  transition: 0.15s;
+}
+.niver-list-item:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.25);
+}
+.niver-list-item.hoje {
+  background: rgba(255, 215, 0, 0.12);
+  border-color: rgba(255, 215, 0, 0.45);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
+}
+.niver-list-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.niver-list-date {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--ouro);
+  background: rgba(216, 192, 122, 0.15);
+  padding: 3px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.niver-list-nome {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+}
+.niver-list-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.niver-list-badge.hoje {
+  background: #ffd700;
+  color: #0c162c;
+  font-weight: 800;
+  animation: pulseFloat 2s infinite;
+}
+.niver-list-badge.breve {
+  background: rgba(91, 140, 255, 0.2);
+  color: #93c5fd;
+  border: 1px solid rgba(91, 140, 255, 0.4);
+}
+
 </style>
 </head>
 <body>
 
 <div id="app">
 
+  <div id="campanha-bar-wrap"></div>
   <header class="topbar">
     <div class="topbar-in">
       <div class="brand">
@@ -4005,8 +4556,9 @@ img,canvas,svg,video{max-width:100%}
       (ehEx(p) ? '<div class="selo-ex' + (semBotoes ? ' sm' : '') + '">&#128168; SAIU DO TIME' +
         (p.saiuEm ? '<u>saiu em ' + fmtDate(p.saiuEm) + '</u>' : '') +
         (p.motivoSaida ? '<i>' + esc(p.motivoSaida) + '</i>' : '') + '</div>' : '') +
+      (ehAniversarianteHoje(p) ? '<div class="selo-aniversario' + (semBotoes ? ' sm' : '') + '">&#127874; ANIVERSARIANTE! &#127881;</div>' : '') +
       (euSou(p) ? '<div class="tag-eu">VOCÊ &#8212; é você no time</div>' : '') +
-      '<div class="fut-card sem-attrs' + (euSou(p) ? ' eu-sou' : '') + (ehEx(p) ? ' ex-saiu' : '') + '" data-pid="' + p.id + '">' +
+      '<div class="fut-card sem-attrs' + (euSou(p) ? ' eu-sou' : '') + (ehEx(p) ? ' ex-saiu' : '') + (ehAniversarianteHoje(p) ? ' aniversariante-card' : '') + '" data-pid="' + p.id + '">' +
       (p.video && p.video.src ? '<div class="card-tag">' + (p.video.mode === 'alpha' ? 'ALFA' : 'ANIM') + '</div>' : '') +
       '<div class="fut-top">' +
       '<div><div class="fut-ovr" data-ovr="' + p.id + '">' + ovr + '</div>' +
@@ -4204,6 +4756,7 @@ img,canvas,svg,video{max-width:100%}
     }
     document.title = (state.team.name || 'Meu Time') + ' - Evolução';
     chipUsuario();
+    renderCampanhaMes();
   }
 
   function renderPainel() {
@@ -4242,7 +4795,9 @@ img,canvas,svg,video{max-width:100%}
       statBox('Amistosos', plural(tipos.amistoso, 'jogo', 'jogos'), stAmist.jogos ? stAmist.aprov + '% em ' + plural(stAmist.jogos, 'jogo', 'jogos') : 'sem amistosos') +
       statBox('Competições', plural(tipos.torneio, 'torneio', 'torneios') + ' &middot; ' + plural(tipos.campeonato, 'campeonato', 'campeonatos'), stComp.jogos ? stComp.aprov + '% em ' + plural(stComp.jogos, 'jogo', 'jogos') : 'sem jogos oficiais') +
       '</div>' +
+      bannerAniversarioGeralHTML() +
       (atletaLogado() ? painelMeu(atletaLogado()) : '') +
+      painelAniversarios() +
       painelVisitas() +
       graficosPainel() +
       '<div class="grid g-2">' +
@@ -4469,6 +5024,7 @@ img,canvas,svg,video{max-width:100%}
     if (filtro !== 'TODOS') { ps = ps.filter(function (p) { return p.pos === filtro; }); exs = exs.filter(function (p) { return p.pos === filtro; }); }
     var novas = novidadesDoElenco();
     var h = '' +
+      bannerAniversarioGeralHTML() +
       '<div class="panel-head" style="margin-bottom:14px">' +
       '<div><div class="h1">Elenco</div><div class="sub">Cartas no estilo FIFA: foto, overall e animação. O <b>overall</b> sobe sozinho conforme os jogos são lançados.</div></div>' +
       '<div class="btn-pill">' +
@@ -5331,6 +5887,7 @@ img,canvas,svg,video{max-width:100%}
     var estreia = !!(recemRegistrado && recemRegistrado === p.id);
     splashBoasVindas(p, estreia);
     recemRegistrado = null;
+    verificarPopupAniversarioAtleta(p);
   }
   /* convidado: entra só para olhar — vê tudo, não altera nada */
   function entrarComoConvidado(infos) {
@@ -5476,23 +6033,29 @@ img,canvas,svg,video{max-width:100%}
         '<span class="uc-txt"><b>' + esc(p.nick || p.name) + '</b><i>' + esc(p.pos) + ' &middot; OVR ' + overall(p) + '</i></span>' +
         '<button class="btn xs" data-act="abrir-minha-ficha" title="Ver a minha carta e o meu desempenho">Minha ficha</button>' +
         (somenteLeitura() ? '' : '<button class="btn xs" data-act="abrir-admin" title="Entrar como administrador do site (senha)">&#128273;</button>') +
-        '<button class="btn xs" data-act="trocar-usuario" title="Entrar com outro nome">Trocar</button>';
+        '<button class="btn xs danger-soft" data-act="trocar-usuario" title="Sair da sua conta / trocar usuário">&#128682; Sair</button>';
     } else if (perfil.tipo === 'convidado') {
       el.className = 'user-chip convidado';
       el.innerHTML = '<span class="uc-av"><b>&#128064;</b></span><span class="uc-txt"><b>' + esc(perfil.nome && perfil.nome !== 'Convidado' ? perfil.nome : 'Convidado') + '</b><i>' + (perfil.nome && perfil.nome !== 'Convidado' ? 'convidado &middot; ' : '') + 'só olhando o time</i></span>' +
         (somenteLeitura() ? '' : '<button class="btn xs" data-act="abrir-admin" title="Entrar como administrador do site (senha)">&#128273;</button>') +
-        '<button class="btn xs" data-act="trocar-usuario" title="Sair do modo convidado">Trocar</button>';
+        '<button class="btn xs danger-soft" data-act="trocar-usuario" title="Sair do modo convidado">&#128682; Sair</button>';
     } else {
       el.className = 'user-chip tecnico';
       el.innerHTML = '<span class="uc-av"><b>&#128273;</b></span><span class="uc-txt"><b>Administrador</b><i>pode alterar o time</i></span>' +
-        '<button class="btn xs" data-act="trocar-usuario" title="Sair do modo administrador">Sair</button>';
+        '<button class="btn xs danger-soft" data-act="trocar-usuario" title="Sair do modo administrador">&#128682; Sair</button>';
     }
   }
 
   function iniciarLogin() {
     /* já logado? entra direto. Arquivo só de visualização sem elenco: mostra a tela mesmo assim. */
     if (perfil && (perfil.tipo === 'tecnico' || perfil.tipo === 'convidado' ||
-        (perfil.tipo === 'atleta' && playerById(perfil.pid) && perfil.senhaConfirmada === true))) return;
+        (perfil.tipo === 'atleta' && playerById(perfil.pid) && perfil.senhaConfirmada === true))) {
+      if (perfil.tipo === 'atleta') {
+        var pAt = playerById(perfil.pid);
+        if (pAt) verificarPopupAniversarioAtleta(pAt);
+      }
+      return;
+    }
     if (perfil && perfil.tipo === 'atleta' && (!playerById(perfil.pid) || perfil.senhaConfirmada !== true)) { perfil = null; apagarLogin(); }
     telaLogin();
   }
@@ -6907,6 +7470,29 @@ img,canvas,svg,video{max-width:100%}
       '<input placeholder="midia/logo.png" value="' + esc(isEmbedded(t.logo) ? '' : t.logo) + '" data-act="team-set" data-k="logo"></label>' +
       '</div>' +
       '</div>' +
+      '<div class="panel" style="margin-top:16px">' +
+        '<div class="h3">&#127895; Campanhas de Conscientização dos Meses</div>' +
+        '<div class="sub" style="margin-bottom:12px">Lembretes mensais de saúde, empatia e valorização da vida (Setembro Amarelo, Outubro Rosa, Novembro Azul, etc.) com banner superior, laço no escudo e mensagens personalizadas.</div>' +
+        '<div class="row">' +
+          '<label class="f"><span>Modo da campanha</span>' +
+            '<select data-act="campanha-trocar-modo">' +
+              '<option value="auto"' + (!((state.settings&&state.settings.campanha)||{}).modo || ((state.settings&&state.settings.campanha)||{}).modo === 'auto' ? ' selected' : '') + '>Automático (segue o mês do calendário)</option>' +
+              [1,2,3,4,5,6,7,8,9,10,11,12].map(function(m) {
+                var it = CAMPANHAS_ANO[m];
+                return '<option value="' + m + '"' + (((state.settings&&state.settings.campanha)||{}).modo === String(m) ? ' selected' : '') + '>Fixar: ' + it.icone + ' ' + esc(it.titulo) + '</option>';
+              }).join('') +
+              '<option value="off"' + (((state.settings&&state.settings.campanha)||{}).modo === 'off' ? ' selected' : '') + '>Desativar campanhas</option>' +
+            '</select>' +
+          '</label>' +
+          '<label class="f"><span>Frase personalizada do clube (opcional)</span>' +
+            '<input placeholder="Deixe em branco para usar a frase oficial da campanha" value="' + esc(((state.settings&&state.settings.campanha)||{}).msgCustom || '') + '" data-act="campanha-set-msg">' +
+          '</label>' +
+        '</div>' +
+        '<div class="inline" style="margin-top:10px">' +
+          '<button class="btn sm pri" data-act="abrir-modal-campanha">&#127895; Ver campanha ativa do mês</button>' +
+          '<button class="btn sm" data-act="abrir-modal-data">&#127881; Ver datas comemorativas e feriados</button>' +
+        '</div>' +
+      '</div>' +
       '<div class="panel" style="margin-top:16px"><div class="h3">Prévia de como aparece no topo</div>' +
       '<div class="inline" style="gap:14px">' +
       '<div class="brand-crest" style="width:70px;height:70px">' + (t.logo ? '<img src="' + esc(t.logo) + '" alt="">' : '<span class="brand-cr-text">' + esc((t.short || 'CR').slice(0, 3).toUpperCase()) + '</span>') + '</div>' +
@@ -8028,6 +8614,29 @@ img,canvas,svg,video{max-width:100%}
         return;
       }
       var act = el.dataset.act, id = el.dataset.id;
+      if (act === 'set-nasc-rapido') {
+        if (!podeEditar()) { avisoPrecisaAdmin(); return; }
+        var pN = playerById(id);
+        if (pN) {
+          pN.birth = el.value;
+          save(true);
+          render();
+          toast('Data de nascimento de ' + (pN.nick || pN.name) + ' atualizada.', 'ok');
+        }
+        return;
+      }
+      if (act === 'campanha-trocar-modo') {
+        if (!podeEditar()) { avisoPrecisaAdmin(); return; }
+        if (!state.settings) state.settings = {};
+        if (!state.settings.campanha) state.settings.campanha = {};
+        state.settings.campanha.modo = el.value;
+        campanhaSimuladaMes = null;
+        save(true);
+        renderCampanhaMes();
+        render();
+        toast('Configuração de campanha atualizada.', 'ok');
+        return;
+      }
 
       /* registrar-se na tela de entrada pode: é assim que o atleta entra pela primeira vez */
       var registrandose = (act === 'confirma-registro') && !!document.getElementById('login') && !somenteLeitura();
@@ -8039,6 +8648,56 @@ img,canvas,svg,video{max-width:100%}
       switch (act) {
         /* o "▶ Vídeo" é um <a href> de verdade: abre no YouTube em outra aba.
            O case existe só para o clique não "vazar" para a linha da tabela. */
+        case 'abrir-popup-aniversario': {
+          var pAniv = playerById(id);
+          if (pAniv) popupAniversarioAtleta(pAniv);
+          break;
+        }
+        case 'modal-nascimentos': {
+          modalNascimentosElenco();
+          break;
+        }
+        case 'abrir-modal-data': {
+          var idDt = el.dataset.id || (dataComemorativaAtiva() ? dataComemorativaAtiva().id : 'independencia');
+          modalDataComemorativa(idDt);
+          break;
+        }
+        case 'testar-data-comemorativa': {
+          if (!podeEditar()) { avisoPrecisaAdmin(); return; }
+          dataComemorativaSimuladaId = el.dataset.id;
+          renderCampanhaMes();
+          modalDataComemorativa(el.dataset.id);
+          break;
+        }
+        case 'resetar-simulacao-datas': {
+          if (!podeEditar()) { avisoPrecisaAdmin(); return; }
+          dataComemorativaSimuladaId = null;
+          campanhaSimuladaMes = null;
+          renderCampanhaMes();
+          closeModal();
+          toast('Simulação restaurada para o calendário automático.', 'ok');
+          break;
+        }
+        case 'abrir-modal-campanha': {
+          var mAlvo = el.dataset.mes ? parseInt(el.dataset.mes, 10) : null;
+          modalCampanhaDoMes(mAlvo);
+          break;
+        }
+        case 'fechar-campanha-bar': {
+          fecharCampanhaBar();
+          break;
+        }
+        case 'testar-campanha-mes': {
+          var mTest = parseInt(el.dataset.mes, 10);
+          campanhaSimuladaMes = mTest;
+          renderCampanhaMes();
+          modalCampanhaDoMes(mTest);
+          break;
+        }
+        case 'definir-campanha-modo': {
+          definirCampanhaModo(el.dataset.modo);
+          break;
+        }
         case 'abrir-video': break;
         case 'link-limpar': {
           var mlv = matchById(id); if (!mlv) return;
@@ -9360,6 +10019,16 @@ img,canvas,svg,video{max-width:100%}
 
   /* handler único de inputs (o formulário de jogo também é tratado no change, para navegadores antigos) */
   function docHandlers_input(ev) {
+    var el = ev.target;
+    if (el && el.dataset && el.dataset.act === 'campanha-set-msg') {
+      if (!podeEditar()) return;
+      if (!state.settings) state.settings = {};
+      if (!state.settings.campanha) state.settings.campanha = {};
+      state.settings.campanha.msgCustom = el.value;
+      save(true);
+      renderCampanhaMes();
+      return;
+    }
       var el = ev.target;
       var act = el.dataset ? el.dataset.act : null;
       if (!act) return;
@@ -9760,6 +10429,1093 @@ img,canvas,svg,video{max-width:100%}
     }
   }
 
+  
+  
+  /* =======================================================
+     SISTEMA DE ANIVERSÁRIOS DOS ATLETAS
+     ======================================================= */
+  function parseDataNasc(birthStr) {
+    if (!birthStr || typeof birthStr !== 'string') return null;
+    var s = birthStr.trim();
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+      var partes = s.split('-');
+      var a = parseInt(partes[0], 10), m = parseInt(partes[1], 10), d = parseInt(partes[2], 10);
+      if (a && m && d) return { ano: a, mes: m, dia: d };
+    } else if (/^\d{2}\/\d{2}\/\d{4}/.test(s)) {
+      var partes2 = s.split('/');
+      var d2 = parseInt(partes2[0], 10), m2 = parseInt(partes2[1], 10), a2 = parseInt(partes2[2], 10);
+      if (a2 && m2 && d2) return { ano: a2, mes: m2, dia: d2 };
+    }
+    return null;
+  }
+
+  function ehAniversarianteHoje(p) {
+    if (!p || !p.birth) return false;
+    var dn = parseDataNasc(p.birth);
+    if (!dn) return false;
+    var hoje = new Date();
+    return (hoje.getDate() === dn.dia && (hoje.getMonth() + 1) === dn.mes);
+  }
+
+  function novaIdade(birthStr) {
+    var dn = parseDataNasc(birthStr);
+    if (!dn) return '';
+    var hoje = new Date();
+    var idade = hoje.getFullYear() - dn.ano;
+    return Math.max(1, idade);
+  }
+
+  function aniversariantesHoje() {
+    return playersAtivos().filter(ehAniversarianteHoje);
+  }
+
+  function proximosAniversariantes(diasLimite) {
+    var limite = diasLimite || 35;
+    var hoje = new Date();
+    var hojeDia = hoje.getDate(), hojeMes = hoje.getMonth() + 1, hojeAno = hoje.getFullYear();
+    var lista = [];
+
+    playersAtivos().forEach(function (p) {
+      if (!p.birth) return;
+      var dn = parseDataNasc(p.birth);
+      if (!dn) return;
+
+      var niverEsteAno = new Date(hojeAno, dn.mes - 1, dn.dia);
+      var diffMs = niverEsteAno.getTime() - (new Date(hojeAno, hojeMes - 1, hojeDia)).getTime();
+      var diffDias = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffDias < 0) {
+        var niverAnoQueVem = new Date(hojeAno + 1, dn.mes - 1, dn.dia);
+        diffMs = niverAnoQueVem.getTime() - (new Date(hojeAno, hojeMes - 1, hojeDia)).getTime();
+        diffDias = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      }
+
+      if (diffDias >= 0 && diffDias <= limite) {
+        lista.push({
+          player: p,
+          dia: dn.dia,
+          mes: dn.mes,
+          idadeNova: hojeAno + (diffDias > 0 && dn.mes < hojeMes ? 1 : 0) - dn.ano,
+          diffDias: diffDias,
+          hoje: (diffDias === 0),
+          dataFmt: String(dn.dia).padStart(2, '0') + '/' + String(dn.mes).padStart(2, '0')
+        });
+      }
+    });
+
+    lista.sort(function (a, b) { return a.diffDias - b.diffDias; });
+    return lista;
+  }
+
+  function bannerAniversarioGeralHTML() {
+    var hojeAniv = aniversariantesHoje();
+    if (!hojeAniv.length) return '';
+    return hojeAniv.map(function (p) {
+      var foto = srcFoto(p);
+      var nIdade = novaIdade(p.birth);
+      return '<div class="aniversario-geral-bar">' +
+        '<div class="aniversario-geral-left">' +
+          '<div class="aniversario-geral-av">' +
+            (foto ? '<img src="' + esc(foto) + '" alt="">' : '<span>' + esc((p.nick || p.name || '?').slice(0, 2).toUpperCase()) + '</span>') +
+          '</div>' +
+          '<div>' +
+            '<div class="aniversario-geral-title">&#127874; HOJE É DIA DE FESTA NO ELENCO! &#127881;</div>' +
+            '<div class="aniversario-geral-sub">Parabéns ao nosso craque <b>' + esc(p.nick || p.name) + '</b> ' +
+              (p.number ? '(#' + esc(p.number) + ' &middot; ' + esc(p.pos) + ')' : '(' + esc(p.pos) + ')') +
+              (nIdade ? ' completando <b>' + nIdade + ' anos</b> de vida!' : ' pelo seu aniversário!') +
+              ' &#127880;&#9917; Toda a família do time te deseja muitas vitórias e golaços!</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="inline">' +
+          '<button class="btn sm pri" data-act="abrir-player" data-id="' + p.id + '">&#11088; Ver Ficha do Aniversariante</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function painelAniversarios() {
+    var hojeAniv = aniversariantesHoje();
+    var prox = proximosAniversariantes(45);
+    var semData = playersAtivos().filter(function (p) { return !p.birth; });
+    var ehAdmin = podeEditar();
+
+    var h = '<div class="panel" style="margin-bottom:18px">' +
+      '<div class="panel-head">' +
+        '<div>' +
+          '<div class="h3">&#127874; Aniversariantes do Elenco</div>' +
+          '<div class="sub">Datas comemorativas, parabéns e próximos aniversários do time.</div>' +
+        '</div>' +
+        '<div class="inline">' +
+          (hojeAniv.length ? '<span class="badge ok" style="animation:pulseFloat 2s infinite">&#127881; ' + hojeAniv.length + ' hoje!</span>' : '') +
+          (ehAdmin && semData.length ? '<button class="btn xs" data-act="modal-nascimentos" title="Cadastrar datas de nascimento dos atletas">&#128197; ' + semData.length + ' sem data</button>' : '') +
+        '</div>' +
+      '</div>';
+
+    if (hojeAniv.length) {
+      h += '<div style="margin-bottom:12px">' +
+        hojeAniv.map(function (p) {
+          var foto = srcFoto(p);
+          var nIdade = novaIdade(p.birth);
+          return '<div class="niver-list-item hoje">' +
+            '<div class="niver-list-left">' +
+              '<span style="font-size:24px">&#127874;</span>' +
+              '<div>' +
+                '<div class="niver-list-nome"><b>' + esc(p.nick || p.name) + '</b> <span class="badge pos">' + esc(p.pos) + '</span>' + (p.number ? ' <span class="mono">#' + esc(p.number) + '</span>' : '') + '</div>' +
+                '<div style="font-size:12px;color:var(--ouro);font-weight:600">Completando ' + (nIdade ? nIdade + ' anos hoje!' : 'mais um ano de vida!') + ' &#127880;</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="inline">' +
+              '<button class="btn xs pri" data-act="abrir-popup-aniversario" data-id="' + p.id + '">&#127881; Ver Homenagem</button>' +
+              '<button class="btn xs" data-act="abrir-player" data-id="' + p.id + '">Ficha</button>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
+
+    if (prox.length) {
+      h += '<div style="font-size:12.5px;font-weight:700;color:var(--txt-mute);text-transform:uppercase;letter-spacing:.5px;margin:8px 0 6px">&#128197; Próximos Aniversários do Time</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:6px">' +
+        prox.map(function (item) {
+          var p = item.player;
+          var labelDias = item.hoje ? '&#127874; Hoje!' : (item.diffDias === 1 ? 'Amanhã!' : 'Em ' + item.diffDias + ' dias');
+          return '<div class="niver-list-item' + (item.hoje ? ' hoje' : '') + '">' +
+            '<div class="niver-list-left">' +
+              '<span class="niver-list-date">' + item.dataFmt + '</span>' +
+              '<div style="min-width:0">' +
+                '<div class="niver-list-nome" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b>' + esc(p.nick || p.name) + '</b> <span class="badge pos">' + esc(p.pos) + '</span></div>' +
+                '<div style="font-size:11px;color:var(--txt-mute)">fará ' + item.idadeNova + ' anos</div>' +
+              '</div>' +
+            '</div>' +
+            '<span class="niver-list-badge' + (item.hoje ? ' hoje' : ' breve') + '">' + labelDias + '</span>' +
+          '</div>';
+        }).join('') +
+        '</div>';
+    } else {
+      h += '<div class="media-note">Nenhum aniversário nos próximos 45 dias.</div>';
+    }
+
+    if (ehAdmin) {
+      h += '<div class="inline" style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);justify-content:space-between">' +
+        '<span style="font-size:12px;color:var(--txt-mute)">&#128273; Gerenciar datas de aniversário do elenco:</span>' +
+        '<button class="btn xs pri" data-act="modal-nascimentos">&#128197; Atualizar Datas de Nascimento</button>' +
+      '</div>';
+    }
+
+    h += '</div>';
+    return h;
+  }
+
+  function popupAniversarioAtleta(p) {
+    var foto = srcFoto(p);
+    var nIdade = novaIdade(p.birth);
+    var timeNome = state.team.name || 'nosso time';
+
+    var h = '<div class="modal-head" style="border-bottom:none;padding-bottom:0">' +
+      '<button class="btn sm" data-act="fechar">&#10005; Fechar</button>' +
+    '</div>' +
+    '<div class="niver-modal-box">' +
+      '<div class="niver-confetti-bg">&#127881; &#127874; &#127880; &#9917; &#10024; &#127942; &#127882; &#127880; &#127874; &#127881;</div>' +
+      '<div class="niver-avatar-ring">' +
+        (foto ? '<img alt="" src="' + esc(foto) + '">' : '<div class="niver-avatar-ph">' + esc((p.nick || p.name || '?').slice(0, 2).toUpperCase()) + '</div>') +
+        '<div class="niver-badge-ribbon">&#127874; ' + (nIdade ? nIdade + ' ANOS' : 'PARABÉNS') + '</div>' +
+      '</div>' +
+      '<h2 class="niver-title">&#127874; Feliz Aniversário, ' + esc(p.nick || p.name) + '! &#127881;</h2>' +
+      '<div class="niver-subtitle">Hoje o dia é todinho seu! &#127880;&#9917;</div>' +
+      '<div class="niver-msg-box">' +
+        '&ldquo;Toda a família, comissão técnica e seus companheiros do <b>' + esc(timeNome) + '</b> te desejam um <b>Feliz Aniversário' + (nIdade ? ' de ' + nIdade + ' anos' : '') + '</b>! ' +
+        'Que este novo ciclo venha repleto de muita saúde, paz, alegrias, conquistas grandiosas, evolução e muitos gols e vitórias defendendo as nossas cores. ' +
+        'Você é peça fundamental no nosso time e na nossa caminhada!&rdquo;' +
+      '</div>' +
+      '<div class="niver-actions">' +
+        '<button class="btn pri" style="padding:10px 24px;font-size:15px" data-act="fechar">&#127881; Muito Obrigado, Família ' + esc(timeNome) + '! &#127942;</button>' +
+      '</div>' +
+    '</div>';
+
+    openModal(h, true);
+    dispararConfetes();
+  }
+
+  function verificarPopupAniversarioAtleta(p) {
+    if (!p || !ehAniversarianteHoje(p)) return;
+    var hojeKey = (new Date()).toISOString().slice(0, 10);
+    var chave = 'aniversario_parabens_mostrado_' + p.id + '_' + hojeKey;
+    try {
+      if (sessionStorage.getItem(chave)) return;
+      sessionStorage.setItem(chave, '1');
+    } catch (e) {}
+
+    setTimeout(function () {
+      popupAniversarioAtleta(p);
+    }, 600);
+  }
+
+  function dispararConfetes() {
+    var container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.inset = '0';
+    container.style.pointerEvents = 'none';
+    container.style.zIndex = '99999';
+    container.style.overflow = 'hidden';
+    document.body.appendChild(container);
+
+    var emojis = ['🎉', '🎂', '🎈', '⭐', '✨', '⚽', '🎊', '🏆'];
+    for (var i = 0; i < 40; i++) {
+      (function (idx) {
+        var el = document.createElement('div');
+        el.textContent = emojis[idx % emojis.length];
+        el.style.position = 'absolute';
+        el.style.left = (Math.random() * 96) + 'vw';
+        el.style.top = '-40px';
+        el.style.fontSize = (16 + Math.random() * 20) + 'px';
+        el.style.transition = 'transform ' + (2 + Math.random() * 2) + 's ease-out, opacity ' + (2 + Math.random() * 2) + 's ease-out';
+        container.appendChild(el);
+
+        setTimeout(function () {
+          el.style.transform = 'translate(' + ((Math.random() - 0.5) * 160) + 'px, ' + (window.innerHeight + 60) + 'px) rotate(' + (Math.random() * 720 - 360) + 'deg)';
+          el.style.opacity = '0';
+        }, 30 + idx * 40);
+      })(i);
+    }
+
+    setTimeout(function () {
+      if (container.parentNode) container.parentNode.removeChild(container);
+    }, 4500);
+  }
+
+  function modalNascimentosElenco() {
+    if (!podeEditar()) { avisoPrecisaAdmin(); return; }
+    var lista = playersAtivos();
+    var h = '<div class="modal-head">' +
+      '<h3>&#128197; Gerenciar Datas de Nascimento do Elenco</h3>' +
+      '<button class="btn sm" data-act="fechar">&#10005; Fechar</button>' +
+    '</div>' +
+    '<div class="media-note" style="margin-bottom:14px">Insira ou altere a data de nascimento dos atletas para ativar os avisos de aniversário automáticos e contagem de idade:</div>' +
+    '<div class="tw" style="max-height:60vh;overflow-y:auto"><table>' +
+      '<thead><tr><th>Atleta</th><th>Posição</th><th>Data de Nascimento</th><th>Idade Atual</th></tr></thead>' +
+      '<tbody>' +
+      lista.map(function (p) {
+        var dn = parseDataNasc(p.birth);
+        var idAtual = p.birth ? novaIdade(p.birth) : '--';
+        return '<tr>' +
+          '<td><b>' + esc(p.nick || p.name) + '</b></td>' +
+          '<td><span class="badge pos">' + esc(p.pos) + '</span></td>' +
+          '<td><input type="date" value="' + esc(p.birth || '') + '" data-act="set-nasc-rapido" data-id="' + p.id + '" style="padding:4px 8px;font-size:13px"></td>' +
+          '<td><b>' + idAtual + '</b></td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table></div>' +
+      '<div class="inline" style="margin-top:14px;justify-content:flex-end">' +
+        '<button class="btn pri" data-act="fechar">Salvar e Concluir</button>' +
+      '</div>';
+    openModal(h, true);
+  }
+
+  
+  /* =======================================================
+     DATAS COMEMORATIVAS E FERIADOS NACIONAIS / ESPORTIVOS
+     ======================================================= */
+  var DATAS_COMEMORATIVAS = {
+    'ano_novo': {
+      id: 'ano_novo', dia: 1, mes: 1, icone: '🎆', fitaIcone: '✨',
+      tag: '01/JAN · ANO NOVO', titulo: 'Feliz Ano Novo & Confraternização Universal',
+      subtitulo: 'Um novo ano de muitas vitórias, gols e conquistas!',
+      corHex: '#ffd700',
+      corGradiente: 'linear-gradient(135deg, rgba(255, 215, 0, 0.35), rgba(99, 102, 241, 0.22))',
+      corBorda: 'rgba(255, 215, 0, 0.65)',
+      corGlow: '0 0 20px rgba(255, 215, 0, 0.5)',
+      corBadge: '#ffd700', corBadgeTxt: '#0c162c',
+      fraseDestaque: 'Que o Ano Novo renove as nossas energias, trazendo saúde, união e grandes triunfos dentro e fora de quadra para toda a nossa família!',
+      explicacao: 'O Réveillon e o Dia da Confraternização Universal celebram a paz, a fraternidade entre os povos e a esperança de novos começos e realizações grandiosas.',
+      homenagemClube: 'A toda a nossa comissão técnica, atletas, diretores, parceiros e torcedores: um ano novo abençoado e repleto de títulos!'
+    },
+    'dia_esportista': {
+      id: 'dia_esportista', dia: 19, mes: 2, icone: '🏃', fitaIcone: '🏅',
+      tag: '19/FEV · DIA DO ESPORTISTA', titulo: 'Dia Nacional do Esportista',
+      subtitulo: 'Celebrando a dedicação, garra e paixão pelo esporte',
+      corHex: '#3b82f6',
+      corGradiente: 'linear-gradient(135deg, rgba(59, 130, 246, 0.32), rgba(34, 197, 94, 0.22))',
+      corBorda: 'rgba(59, 130, 246, 0.6)',
+      corGlow: '0 0 18px rgba(59, 130, 246, 0.45)',
+      corBadge: '#3b82f6', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Ser atleta é superar limites a cada treino e jogar com o coração. Parabéns a todos os nossos guerreiros da bola!',
+      explicacao: 'O Dia do Esportista incentiva a prática de atividades físicas, a vida saudável, o espírito de equipe e os valores nobres do esporte.',
+      homenagemClube: 'Nosso orgulho a cada um dos nossos atletas que honram as nossas cores com suor e disciplina!'
+    },
+    'dia_mulher': {
+      id: 'dia_mulher', dia: 8, mes: 3, icone: '🌸', fitaIcone: '💐',
+      tag: '08/MAR · DIA DA MULHER', titulo: 'Dia Internacional da Mulher',
+      subtitulo: 'Respeito, força, talento e protagonismo feminino',
+      corHex: '#ec4899',
+      corGradiente: 'linear-gradient(135deg, rgba(236, 72, 153, 0.35), rgba(168, 85, 247, 0.22))',
+      corBorda: 'rgba(236, 72, 153, 0.65)',
+      corGlow: '0 0 20px rgba(236, 72, 153, 0.5)',
+      corBadge: '#ec4899', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Respeito, admiração e homenagem a todas as mulheres que com coragem e talento transformam o esporte e a sociedade!',
+      explicacao: 'O Dia Internacional da Mulher é um marco de reflexão sobre conquistas sociais, igualdade de direitos e combate a qualquer tipo de violência e discriminação.',
+      homenagemClube: 'Homenagem especial a todas as atletas, mães, profissionais da comissão e torcedoras do nosso time!'
+    },
+    'tiradentes': {
+      id: 'tiradentes', dia: 21, mes: 4, icone: '🇧🇷', fitaIcone: '⭐',
+      tag: '21/ABR · TIRADENTES', titulo: 'Dia de Tiradentes & Heróis da Pátria',
+      subtitulo: 'Memória cívica, liberdade e determinação',
+      corHex: '#16a34a',
+      corGradiente: 'linear-gradient(135deg, rgba(22, 163, 74, 0.32), rgba(234, 179, 8, 0.22))',
+      corBorda: 'rgba(22, 163, 74, 0.6)',
+      corGlow: '0 0 18px rgba(22, 163, 74, 0.45)',
+      corBadge: '#16a34a', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Lembrando os ideais de liberdade, coragem e determinação que moldaram a história do nosso país.',
+      explicacao: 'Homenagem a Joaquim José da Silva Xavier (Tiradentes), mártir da Inconfidência Mineira e símbolo cívico da luta pela independência do Brasil.',
+      homenagemClube: 'A dedicação e o espírito de equipe nos ensinam que a união de propósitos supera qualquer desafio!'
+    },
+    'dia_trabalho': {
+      id: 'dia_trabalho', dia: 1, mes: 5, icone: '🛠️', fitaIcone: '⭐',
+      tag: '01/MAI · DIA DO TRABALHADOR', titulo: 'Dia Mundial do Trabalho',
+      subtitulo: 'Honrando a força, o suor e a dedicação de quem constrói o futuro',
+      corHex: '#2563eb',
+      corGradiente: 'linear-gradient(135deg, rgba(37, 99, 235, 0.32), rgba(245, 158, 11, 0.22))',
+      corBorda: 'rgba(37, 99, 235, 0.6)',
+      corGlow: '0 0 18px rgba(37, 99, 235, 0.45)',
+      corBadge: '#2563eb', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Parabéns a todos os trabalhadores e trabalhadoras que com esforço diário e dignidade constroem suas vitórias!',
+      explicacao: 'O 1º de Maio celebra internacionalmente as lutas históricas por condições justas de trabalho, respeito e valorização dos profissionais de todas as áreas.',
+      homenagemClube: 'Nosso reconhecimento a cada atleta e membro do time que concilia trabalho, treinos e família com exemplar garra!'
+    },
+    'dia_maes': {
+      id: 'dia_maes', dia: null, mes: 5, tipo: '2-domingo', diaAprox: 10, icone: '💐', fitaIcone: '❤️',
+      tag: 'MAIO · DIA DAS MÃES', titulo: 'Feliz Dia das Mães!',
+      subtitulo: 'Nosso amor infinito e eterna gratidão às maiores torcedoras',
+      corHex: '#f472b6',
+      corGradiente: 'linear-gradient(135deg, rgba(244, 114, 182, 0.35), rgba(251, 146, 60, 0.2))',
+      corBorda: 'rgba(244, 114, 182, 0.65)',
+      corGlow: '0 0 20px rgba(244, 114, 182, 0.5)',
+      corBadge: '#f472b6', corBadgeTxt: '#0c162c',
+      fraseDestaque: 'A todas as mães dos nossos atletas e do nosso time: nosso carinho, respeito e gratidão pelo apoio incondicional!',
+      explicacao: 'O Dia das Mães celebra o amor protetor, a dedicação e o suporte fundamental das mães na formação e no crescimento de cada filho.',
+      homenagemClube: 'Vocês são a inspiração e a base mais sólida das nossas vitórias!'
+    },
+    'dia_futebol_futsal': {
+      id: 'dia_futebol_futsal', dia: 19, mes: 7, icone: '⚽', fitaIcone: '🏆',
+      tag: '19/JUL · FUTEBOL E FUTSAL', titulo: 'Dia Nacional do Futebol & Futsal',
+      subtitulo: 'Celebrando a paixão nacional, o drible e a bola na rede',
+      corHex: '#22c55e',
+      corGradiente: 'linear-gradient(135deg, rgba(34, 197, 94, 0.35), rgba(234, 179, 8, 0.25))',
+      corBorda: 'rgba(34, 197, 94, 0.65)',
+      corGlow: '0 0 20px rgba(34, 197, 94, 0.5)',
+      corBadge: '#22c55e', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'A bola rolando na quadra, o calor da torcida e o amor pelo manto. Celebrando o esporte mais apaixonante do mundo!',
+      explicacao: 'Instituído em homenagem ao primeiro clube de futebol fundado no Brasil (SC Rio Grande em 1900), celebra a essência do esporte que une o povo brasileiro.',
+      homenagemClube: 'Viva a nossa quadra, viva o nosso futsal e viva cada lance defendido com raça pelo nosso time!'
+    },
+    'dia_pais': {
+      id: 'dia_pais', dia: null, mes: 8, tipo: '2-domingo', diaAprox: 9, icone: '👔', fitaIcone: '⭐',
+      tag: 'AGOSTO · DIA DOS PAIS', titulo: 'Feliz Dia dos Pais!',
+      subtitulo: 'Homenagem aos pais que ensinam, apoiam e vibram na arquibancada',
+      corHex: '#3b82f6',
+      corGradiente: 'linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(96, 165, 250, 0.2))',
+      corBorda: 'rgba(59, 130, 246, 0.65)',
+      corGlow: '0 0 20px rgba(59, 130, 246, 0.5)',
+      corBadge: '#2563eb', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Aos pais que incentivam os primeiros chutes e estão sempre na torcida: nosso abraço forte e muito obrigado!',
+      explicacao: 'O Dia dos Pais valoriza o papel da paternidade responsável, do companheirismo e do exemplo de conduta e afeto transmitido aos filhos.',
+      homenagemClube: 'Um Feliz Dia dos Pais a todos os pais do elenco, da torcida e da comissão técnica!'
+    },
+    'independencia': {
+      id: 'independencia', dia: 7, mes: 9, icone: '🇧🇷', fitaIcone: '⭐',
+      tag: '07/SET · INDEPENDÊNCIA', titulo: '7 de Setembro: Independência do Brasil',
+      subtitulo: 'Orgulho verde e amarelo, soberania e amor à nossa pátria',
+      corHex: '#15803d',
+      corGradiente: 'linear-gradient(135deg, rgba(21, 128, 61, 0.38), rgba(234, 179, 8, 0.25))',
+      corBorda: 'rgba(234, 179, 8, 0.75)',
+      corGlow: '0 0 22px rgba(234, 179, 8, 0.5)',
+      corBadge: '#15803d', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Orgulho das nossas cores, da nossa gente e da nossa história. Viva o Brasil e a nossa garra dentro e fora de quadra!',
+      explicacao: 'O 7 de Setembro marca a proclamação da Independência do Brasil em 1822 às margens do Ipiranga, simbolizando a soberania da nossa nação.',
+      homenagemClube: 'Com espírito patriótico e respeito, celebramos o orgulho de defender a bandeira do nosso esporte!'
+    },
+    'dia_gaucho': {
+      id: 'dia_gaucho', dia: 20, mes: 9, icone: '🧉', fitaIcone: '🚩',
+      tag: '20/SET · DIA DO GAÚCHO', titulo: '20 de Setembro: Dia do Gaúcho',
+      subtitulo: 'Semana Farroupilha, honra e tradição do Rio Grande do Sul',
+      corHex: '#15803d',
+      corGradiente: 'linear-gradient(135deg, rgba(21, 128, 61, 0.38), rgba(220, 38, 38, 0.3), rgba(234, 179, 8, 0.22))',
+      corBorda: 'rgba(220, 38, 38, 0.7)',
+      corGlow: '0 0 22px rgba(220, 38, 38, 0.45)',
+      corBadge: '#dc2626', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Honrando a tradição, a coragem e a força da terra gaúcha com muito orgulho das nossas raízes e da nossa história!',
+      explicacao: 'O Dia do Gaúcho rememora o início da Revolução Farroupilha em 1835, exaltando o amor ao Rio Grande do Sul, o civismo e os valores de bravura e lealdade.',
+      homenagemClube: 'Em Ivoti e em todo o Rio Grande, celebramos a fibra e o orgulho das nossas tradições!'
+    },
+    'dia_criancas': {
+      id: 'dia_criancas', dia: 12, mes: 10, icone: '🎈', fitaIcone: '🧸',
+      tag: '12/OUT · DIA DAS CRIANÇAS', titulo: '12 de Outubro: Feliz Dia das Crianças!',
+      subtitulo: 'Alegria, imaginação e a paixão pura de jogar bola',
+      corHex: '#f97316',
+      corGradiente: 'linear-gradient(135deg, rgba(249, 115, 22, 0.38), rgba(59, 130, 246, 0.25), rgba(250, 204, 21, 0.2))',
+      corBorda: 'rgba(249, 115, 22, 0.7)',
+      corGlow: '0 0 22px rgba(249, 115, 22, 0.5)',
+      corBadge: '#f97316', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Que a alegria, a espontaneidade e a paixão de jogar bola com um sorriso no rosto nunca se apaguem dos nossos corações!',
+      explicacao: 'O Dia das Crianças celebra a infância, o direito ao lazer, à educação e ao esporte como ferramentas de formação de caráter e cidadania. Também se celebra Nossa Senhora Aparecida.',
+      homenagemClube: 'Aos filhos dos nossos atletas e a todas as crianças da nossa torcida: que nunca percam o brilho nos olhos!'
+    },
+    'dia_professor': {
+      id: 'dia_professor', dia: 15, mes: 10, icone: '🧑‍🏫', fitaIcone: '📘',
+      tag: '15/OUT · PROFESSORES E TÉCNICOS', titulo: 'Dia do Professor e Treinador',
+      subtitulo: 'Mestres que formam atletas e ensinam valores para a vida',
+      corHex: '#3b82f6',
+      corGradiente: 'linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(234, 179, 8, 0.22))',
+      corBorda: 'rgba(59, 130, 246, 0.65)',
+      corGlow: '0 0 20px rgba(59, 130, 246, 0.45)',
+      corBadge: '#2563eb', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Gratidão a quem nos orienta com paciência, estratégia e sabedoria dentro e fora das quatro linhas!',
+      explicacao: 'O 15 de Outubro homenageia os educadores, professores e treinadores que dedicam sua vida à transmissão do conhecimento e à formação cidadã.',
+      homenagemClube: 'Nosso agradecimento especial ao técnico e à comissão técnica pela liderança e compromisso diário!'
+    },
+    'proclamacao_republica': {
+      id: 'proclamacao_republica', dia: 15, mes: 11, icone: '🇧🇷', fitaIcone: '⭐',
+      tag: '15/NOV · PROCLAMAÇÃO DA REPÚBLICA', titulo: '15 de Novembro: Proclamação da República',
+      subtitulo: 'Civismo, história e compromisso com o Brasil',
+      corHex: '#16a34a',
+      corGradiente: 'linear-gradient(135deg, rgba(22, 163, 74, 0.35), rgba(234, 179, 8, 0.22))',
+      corBorda: 'rgba(234, 179, 8, 0.7)',
+      corGlow: '0 0 20px rgba(234, 179, 8, 0.45)',
+      corBadge: '#16a34a', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Celebrando a construção da cidadania, da democracia e da soberania nacional no Brasil.',
+      explicacao: 'Em 15 de Novembro de 1889, Marechal Deodoro da Fonseca liderou o movimento que instaurou o regime republicano federativo no país.',
+      homenagemClube: 'No esporte, aprendemos que o respeito às regras e a união são as bases de uma equipe campeã!'
+    },
+    'consciencia_negra': {
+      id: 'consciencia_negra', dia: 20, mes: 11, icone: '✊🏿', fitaIcone: '⭐',
+      tag: '20/NOV · CONSCIÊNCIA NEGRA', titulo: 'Dia Nacional de Zumbi e da Consciência Negra',
+      subtitulo: 'Igualdade, respeito à cultura afro-brasileira e luta contra o racismo',
+      corHex: '#ffd700',
+      corGradiente: 'linear-gradient(135deg, rgba(255, 215, 0, 0.35), rgba(30, 41, 59, 0.35))',
+      corBorda: 'rgba(255, 215, 0, 0.65)',
+      corGlow: '0 0 22px rgba(255, 215, 0, 0.5)',
+      corBadge: '#ffd700', corBadgeTxt: '#0c162c',
+      fraseDestaque: 'Respeito, igualdade e valorização da ancestralidade negra. Tolerância zero ao racismo no esporte e na sociedade!',
+      explicacao: 'Data do falecimento de Zumbi dos Palmares (1695), herói nacional que simboliza a resistência à escravidão e a luta incessante por igualdade racial.',
+      homenagemClube: 'O nosso time celebra a diversidade e defende com orgulho a inclusão e o respeito mútuo em todos os espaços!'
+    },
+    'dia_atleta': {
+      id: 'dia_atleta', dia: 21, mes: 12, icone: '🏆', fitaIcone: '🥇',
+      tag: '21/DEZ · DIA DO ATLETA', titulo: '21 de Dezembro: Dia Nacional do Atleta',
+      subtitulo: 'Parabéns aos craques que doam sua energia e amor ao time',
+      corHex: '#ffd700',
+      corGradiente: 'linear-gradient(135deg, rgba(255, 215, 0, 0.35), rgba(34, 197, 94, 0.22))',
+      corBorda: 'rgba(255, 215, 0, 0.65)',
+      corGlow: '0 0 20px rgba(255, 215, 0, 0.5)',
+      corBadge: '#ffd700', corBadgeTxt: '#0c162c',
+      fraseDestaque: 'Parabéns a cada atleta do nosso elenco pelo esforço diário, suor e compromisso com o nosso escudo!',
+      explicacao: 'O Dia do Atleta homenageia os praticantes profissionais e amadores que dedicam sua vida ao aprimoramento esportivo, disciplina e superação.',
+      homenagemClube: 'Vocês são a razão de ser deste projeto e o coração pulsante do nosso clube!'
+    },
+    'natal': {
+      id: 'natal', dia: 25, mes: 12, icone: '🎄', fitaIcone: '⭐',
+      tag: '25/DEZ · NATAL', titulo: 'Feliz Natal!',
+      subtitulo: 'Paz, amor, esperança e fraternidade no coração de todos',
+      corHex: '#dc2626',
+      corGradiente: 'linear-gradient(135deg, rgba(220, 38, 38, 0.38), rgba(22, 163, 74, 0.25), rgba(255, 215, 0, 0.2))',
+      corBorda: 'rgba(220, 38, 38, 0.7)',
+      corGlow: '0 0 22px rgba(220, 38, 38, 0.5)',
+      corBadge: '#dc2626', corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Que a luz e o amor do Natal iluminem os lares de todos os nossos atletas, torcedores, parceiros e famílias com muita paz e união!',
+      explicacao: 'O Natal celebra o nascimento de Jesus Cristo e renova no mundo inteiro os sentimentos de solidariedade, perdão e fraternidade.',
+      homenagemClube: 'Desejamos um Natal inesquecível e iluminado a toda a grande família do nosso time!'
+    }
+  };
+
+  var dataComemorativaSimuladaId = null;
+
+  function dataComemorativaAtiva(idForcado) {
+    if (idForcado && DATAS_COMEMORATIVAS[idForcado]) return DATAS_COMEMORATIVAS[idForcado];
+    if (dataComemorativaSimuladaId && DATAS_COMEMORATIVAS[dataComemorativaSimuladaId]) return DATAS_COMEMORATIVAS[dataComemorativaSimuladaId];
+    var hoje = new Date();
+    var d = hoje.getDate(), m = hoje.getMonth() + 1;
+
+    for (var k in DATAS_COMEMORATIVAS) {
+      var item = DATAS_COMEMORATIVAS[k];
+      if (item.dia && item.dia === d && item.mes === m) {
+        return item;
+      }
+      if (item.tipo === '2-domingo' && item.mes === m) {
+        if (hoje.getDay() === 0 && d >= 8 && d <= 14) return item;
+      }
+    }
+    return null;
+  }
+
+  function modalDataComemorativa(idDataAlvo) {
+    var dt = (idDataAlvo && DATAS_COMEMORATIVAS[idDataAlvo]) ? DATAS_COMEMORATIVAS[idDataAlvo] : dataComemorativaAtiva();
+    if (!dt) dt = DATAS_COMEMORATIVAS['independencia'];
+    var ehAdmin = podeEditar();
+
+    var h = '<div class="modal-head">' +
+      '<h3>' + dt.icone + ' ' + esc(dt.titulo) + '</h3>' +
+      '<button class="btn sm" data-act="fechar">&#10005; Fechar</button>' +
+    '</div>' +
+    '<div class="campanha-modal-banner" style="background:' + dt.corGradiente + ';border-color:' + dt.corBorda + '">' +
+      '<div class="campanha-modal-header">' +
+        '<span class="campanha-modal-ribbon">' + dt.icone + '</span>' +
+        '<div>' +
+          '<h2 class="campanha-modal-title">' + esc(dt.titulo) + '</h2>' +
+          '<div class="campanha-modal-sub">' + esc(dt.subtitulo) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="campanha-modal-quote">&ldquo;' + esc(dt.fraseDestaque) + '&rdquo;</div>' +
+    '</div>' +
+    '<div class="media-note" style="margin-bottom:14px;line-height:1.45">' + esc(dt.explicacao) + '</div>' +
+    '<div style="background:rgba(255,255,255,0.05);border:1px solid var(--line-2);border-radius:10px;padding:12px 14px;margin-bottom:16px">' +
+      '<div style="font-size:13px;font-weight:800;color:var(--ouro);margin-bottom:4px">&#127942; Homenagem do ' + esc(state.team.name || 'Clube') + '</div>' +
+      '<div style="font-size:13.5px;color:#f8fafc;line-height:1.45">' + esc(dt.homenagemClube) + '</div>' +
+    '</div>' +
+    (ehAdmin ? (
+      '<div class="campanha-sec-title">&#129514; Visualizar e Testar Todas as Datas Comemorativas (Admin)</div>' +
+      '<div class="media-note" style="margin-bottom:8px">Como administrador, você pode clicar em qualquer data abaixo para testar o banner e o tema visual correspondente:</div>' +
+      '<div class="campanha-meses-grid" style="grid-template-columns:repeat(auto-fill, minmax(140px, 1fr))">' +
+        Object.keys(DATAS_COMEMORATIVAS).map(function (k) {
+          var it = DATAS_COMEMORATIVAS[k];
+          var sel = (it.id === dt.id);
+          return '<button class="campanha-mes-pill' + (sel ? ' ativo' : '') + '" data-act="testar-data-comemorativa" data-id="' + it.id + '">' +
+            it.icone + ' ' + esc(it.tag.split('·')[1] || it.tag) +
+          '</button>';
+        }).join('') +
+      '</div>' +
+      '<div class="inline" style="margin-top:12px;justify-content:flex-start">' +
+        '<button class="btn xs pri" data-act="resetar-simulacao-datas">Restaurar Calendário Automático</button>' +
+      '</div>'
+    ) : '') +
+    '<div class="inline" style="margin-top:16px;justify-content:flex-end">' +
+      '<button class="btn pri" data-act="fechar">Entendi e Compartilho essa Celebração</button>' +
+    '</div>';
+
+    openModal(h);
+  }
+
+  /* =======================================================
+     CAMPANHAS DE CONSCIENTIZAÇÃO DOS MESES DO ANO
+     (Setembro Amarelo, Outubro Rosa, Novembro Azul, etc.)
+     ======================================================= */
+  var CAMPANHAS_ANO = {
+    1: {
+      mes: 1,
+      nomeMes: 'Janeiro',
+      corNome: 'Branco',
+      titulo: 'Janeiro Branco',
+      subtitulo: 'Saúde Mental e Emocional',
+      icone: '🤍',
+      fitaIcone: '🎗️',
+      corHex: '#e2e8f0',
+      corGradiente: 'linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(203, 213, 225, 0.14))',
+      corBorda: 'rgba(255, 255, 255, 0.5)',
+      corGlow: '0 0 18px rgba(255, 255, 255, 0.35)',
+      corBadge: '#f8fafc',
+      corBadgeTxt: '#0f172a',
+      fraseDestaque: 'Quem cuida da mente, cuida da vida. Mantenha o equilíbrio dentro e fora de quadra!',
+      explicacao: 'O Janeiro Branco convida todos a refletirem sobre a saúde mental e emocional. Assim como o corpo precisa de treino e descanso, a mente precisa de cuidado, diálogo e apoio mútuo.',
+      dicas: [
+        'Não guarde sentimentos difíceis: conversar com amigos e parceiros de time alivia a mente.',
+        'Pratique pausas conscientes, sono de qualidade e respeito aos seus limites físicos e mentais.',
+        'Buscar apoio de psicologia ou psiquiatria é um ato de maturidade, coragem e força.'
+      ],
+      canaisApoio: [
+        { nome: 'CVV - Centro de Valorização da Vida', contato: 'Ligue 188 (Gratuito / 24h)', url: 'https://cvv.org.br' },
+        { nome: 'CAPS / Rede de Saúde Mental (SUS)', contato: 'Procure o posto de saúde da sua cidade', url: 'https://www.gov.br/saude' }
+      ]
+    },
+    2: {
+      mes: 2,
+      nomeMes: 'Fevereiro',
+      corNome: 'Roxo & Laranja',
+      titulo: 'Fevereiro Roxo & Laranja',
+      subtitulo: 'Lúpus, Fibromialgia, Alzheimer & Leucemia',
+      icone: '💜',
+      fitaIcone: '🎗️',
+      corHex: '#c084fc',
+      corGradiente: 'linear-gradient(135deg, rgba(168, 85, 247, 0.28), rgba(249, 115, 22, 0.2))',
+      corBorda: 'rgba(192, 132, 252, 0.55)',
+      corGlow: '0 0 18px rgba(168, 85, 247, 0.4)',
+      corBadge: '#a855f7',
+      corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Diagnóstico precoce, empatia e apoio para superar as maiores batalhas.',
+      explicacao: 'O Fevereiro Roxo conscientiza sobre Lúpus, Fibromialgia e Alzheimer, doenças crônicas que exigem acolhimento e diagnóstico cedo. O Fevereiro Laranja alerta para o combate e prevenção da Leucemia.',
+      dicas: [
+        'Esteja atento a sintomas persistentes de dores, fadiga ou alterações de memória.',
+        'Cadastre-se como doador de medula óssea no REDOME / Hemocentro mais próximo.',
+        'Acolha e apoie familiares e pessoas com doenças crônicas com paciência e amor.'
+      ],
+      canaisApoio: [
+        { nome: 'REDOME - Registro Nacional de Doadores de Medula', contato: 'redome.inca.gov.br', url: 'http://redome.inca.gov.br' },
+        { nome: 'Disque Saúde SUS', contato: 'Ligue 136', url: 'https://www.gov.br/saude' }
+      ]
+    },
+    3: {
+      mes: 3,
+      nomeMes: 'Março',
+      corNome: 'Lilás & Azul Marinho',
+      titulo: 'Março Lilás & Azul',
+      subtitulo: 'Prevenção ao Câncer de Colo Uterino & Colorretal',
+      icone: '💜',
+      fitaIcone: '🎗️',
+      corHex: '#38bdf8',
+      corGradiente: 'linear-gradient(135deg, rgba(192, 132, 252, 0.24), rgba(56, 189, 248, 0.22))',
+      corBorda: 'rgba(56, 189, 248, 0.5)',
+      corGlow: '0 0 18px rgba(56, 189, 248, 0.38)',
+      corBadge: '#38bdf8',
+      corBadgeTxt: '#0c2340',
+      fraseDestaque: 'A prevenção é o nosso melhor drible contra as doenças. Cuide de si e de quem você ama!',
+      explicacao: 'O Março Lilás foca na prevenção e vacinação contra o HPV e câncer do colo do útero. O Março Azul Marinho alerta para a saúde digestiva e prevenção do câncer colorretal.',
+      dicas: [
+        'Mantenha exames preventivos (Papanicolau e exames de rotina) sempre em dia.',
+        'Incentive a vacinação contra o HPV em jovens de 9 a 14 anos.',
+        'Alimentação rica em fibras, hidratação e prática de esportes são escudos naturais.'
+      ],
+      canaisApoio: [
+        { nome: 'INCA - Instituto Nacional de Câncer', contato: 'inca.gov.br', url: 'https://www.inca.gov.br' },
+        { nome: 'Disque Saúde SUS', contato: 'Ligue 136', url: 'https://www.gov.br/saude' }
+      ]
+    },
+    4: {
+      mes: 4,
+      nomeMes: 'Abril',
+      corNome: 'Azul & Verde',
+      titulo: 'Abril Azul & Verde',
+      subtitulo: 'Conscientização sobre o Autismo & Segurança no Trabalho',
+      icone: '💙',
+      fitaIcone: '🎗️',
+      corHex: '#3b82f6',
+      corGradiente: 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(34, 197, 94, 0.2))',
+      corBorda: 'rgba(59, 130, 246, 0.5)',
+      corGlow: '0 0 18px rgba(59, 130, 246, 0.38)',
+      corBadge: '#3b82f6',
+      corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Inclusão, respeito à neurodiversidade e cuidado com a integridade física de todos.',
+      explicacao: 'O Abril Azul celebra o Dia Mundial de Conscientização sobre o Autismo (TEA), promovendo inclusão e eliminando preconceitos. O Abril Verde ressalta a prevenção de acidentes e segurança no ambiente esportivo e profissional.',
+      dicas: [
+        'Aprenda e respeite as singularidades de pessoas com autismo no esporte e na sociedade.',
+        'Ambientes acolhedores potencializam o talento e o bem-estar de todos.',
+        'Priorize a segurança, uso correto de proteções e respeito ao corpo durante treinos e jogos.'
+      ],
+      canaisApoio: [
+        { nome: 'Canal Autismo / Revista Autismo', contato: 'canalautismo.com.br', url: 'https://www.canalautismo.com.br' },
+        { nome: 'Disque Direitos Humanos', contato: 'Disque 100', url: 'https://www.gov.br/mdh' }
+      ]
+    },
+    5: {
+      mes: 5,
+      nomeMes: 'Maio',
+      corNome: 'Amarelo & Vermelho',
+      titulo: 'Maio Amarelo & Vermelho',
+      subtitulo: 'Segurança no Trânsito & Prevenção ao Câncer Bucal e Hepatites',
+      icone: '💛',
+      fitaIcone: '🎗️',
+      corHex: '#eab308',
+      corGradiente: 'linear-gradient(135deg, rgba(234, 179, 8, 0.28), rgba(239, 68, 68, 0.2))',
+      corBorda: 'rgba(234, 179, 8, 0.55)',
+      corGlow: '0 0 18px rgba(234, 179, 8, 0.38)',
+      corBadge: '#eab308',
+      corBadgeTxt: '#0f172a',
+      fraseDestaque: 'No trânsito e na vida, a sua escolha faz a diferença. Respeito e prudência sempre!',
+      explicacao: 'O Maio Amarelo mobiliza a sociedade pela redução de acidentes e valorização da vida no trânsito. O Maio Vermelho foca no diagnóstico precoce de lesões orais e prevenção das hepatites.',
+      dicas: [
+        'Se beber ou estiver cansado após o jogo, nunca dirija. Use carona ou aplicativo.',
+        'Respeite os limites de velocidade e use sempre o cinto de segurança.',
+        'Não use o celular ao volante — um segundo de distração muda destinos.'
+      ],
+      canaisApoio: [
+        { nome: 'Movimento Maio Amarelo', contato: 'maioamarelo.com', url: 'https://maioamarelo.com' },
+        { nome: 'Polícia Rodoviária Federal / Emergências', contato: 'Ligue 191', url: 'https://www.gov.br/prf' }
+      ]
+    },
+    6: {
+      mes: 6,
+      nomeMes: 'Junho',
+      corNome: 'Vermelho & Laranja',
+      titulo: 'Junho Vermelho & Laranja',
+      subtitulo: 'Incentivo à Doação de Sangue & Prevenção de Queimaduras e Anemia',
+      icone: '❤️',
+      fitaIcone: '🩸',
+      corHex: '#ef4444',
+      corGradiente: 'linear-gradient(135deg, rgba(239, 68, 68, 0.28), rgba(249, 115, 22, 0.2))',
+      corBorda: 'rgba(239, 68, 68, 0.6)',
+      corGlow: '0 0 18px rgba(239, 68, 68, 0.42)',
+      corBadge: '#ef4444',
+      corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Seja o camisa 10 da solidariedade: doar sangue pode salvar até 4 vidas com uma só jogada!',
+      explicacao: 'Com as temperaturas mais baixas no inverno, os estoques dos hemocentros caem drasticamente. O Junho Vermelho lembra que doar sangue é um gesto rápido, seguro e que salva milhares de pessoas todos os dias.',
+      dicas: [
+        'Para doar sangue: tenha entre 16 e 69 anos, pese mais de 50kg e esteja descansado e bem alimentado.',
+        'Convide os amigos do time para irem juntos ao Hemocentro da região.',
+        'Uma única bolsa de sangue pode beneficiar até quatro pessoas em cirurgias e emergências.'
+      ],
+      canaisApoio: [
+        { nome: 'Hemocentro do RS / Hemocentros Regionais', contato: 'hemocentro.rs.gov.br', url: 'https://saude.rs.gov.br/hemocentro' },
+        { nome: 'Disque Saúde SUS - Doação de Sangue', contato: 'Ligue 136', url: 'https://www.gov.br/saude' }
+      ]
+    },
+    7: {
+      mes: 7,
+      nomeMes: 'Julho',
+      corNome: 'Amarelo & Verde',
+      titulo: 'Julho Amarelo & Verde',
+      subtitulo: 'Luta contra as Hepatites Virais & Prevenção do Câncer de Cabeça e Pescoço',
+      icone: '💛',
+      fitaIcone: '🎗️',
+      corHex: '#f59e0b',
+      corGradiente: 'linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(34, 197, 94, 0.2))',
+      corBorda: 'rgba(245, 158, 11, 0.55)',
+      corGlow: '0 0 18px rgba(245, 158, 11, 0.38)',
+      corBadge: '#f59e0b',
+      corBadgeTxt: '#0f172a',
+      fraseDestaque: 'Testagem rápida, prevenção e saúde em dia garantem um futuro vitorioso!',
+      explicacao: 'O Julho Amarelo reforça a importância dos testes rápidos e vacinação contra Hepatites A, B e C, muitas vezes silenciosas. O Julho Verde combate o câncer de cabeça e pescoço através do diagnóstico precoce.',
+      dicas: [
+        'Faça o teste rápido gratuito de hepatite na rede pública (SUS).',
+        'Verifique se a sua vacinação contra hepatite B está em dia.',
+        'Evite o uso de tabaco e excesso de álcool, protegendo sua via respiratória e voz.'
+      ],
+      canaisApoio: [
+        { nome: 'Departamento de ISTs e Hepatites Virais (MS)', contato: 'gov.br/aids', url: 'https://www.gov.br/aids' },
+        { nome: 'Disque Saúde SUS', contato: 'Ligue 136', url: 'https://www.gov.br/saude' }
+      ]
+    },
+    8: {
+      mes: 8,
+      nomeMes: 'Agosto',
+      corNome: 'Dourado & Lilás',
+      titulo: 'Agosto Dourado & Lilás',
+      subtitulo: 'Aleitamento Materno & Combate à Violência contra a Mulher',
+      icone: '💛',
+      fitaIcone: '🎗️',
+      corHex: '#facc15',
+      corGradiente: 'linear-gradient(135deg, rgba(250, 204, 21, 0.28), rgba(217, 70, 239, 0.22))',
+      corBorda: 'rgba(250, 204, 21, 0.55)',
+      corGlow: '0 0 18px rgba(250, 204, 21, 0.38)',
+      corBadge: '#facc15',
+      corBadgeTxt: '#0f172a',
+      fraseDestaque: 'Apoio à vida desde o início e respeito absoluto a todas as mulheres. Respeito sempre!',
+      explicacao: 'O Agosto Dourado simboliza o padrão ouro do leite materno no desenvolvimento saudável de crianças. O Agosto Lilás comemora a Lei Maria da Penha e combate veementemente qualquer violência contra a mulher.',
+      dicas: [
+        'Apoie e incentive as mães no período de amamentação em todos os espaços comunitários.',
+        'Tolerância zero ao machismo e à violência: proteja, acolha e denuncie.',
+        'No esporte e na vida diária, a dignidade e a equidade são valores fundamentais.'
+      ],
+      canaisApoio: [
+        { nome: 'Central de Atendimento à Mulher', contato: 'Ligue 180 (Gratuito / 24h)', url: 'https://www.gov.br/mulheres' },
+        { nome: 'Rede Brasileira de Bancos de Leite Humano', contato: 'rblh.fiocruz.br', url: 'https://rblh.fiocruz.br' }
+      ]
+    },
+    9: {
+      mes: 9,
+      nomeMes: 'Setembro',
+      corNome: 'Amarelo & Verde',
+      titulo: 'Setembro Amarelo',
+      subtitulo: 'Valorização da Vida & Prevenção ao Suicídio',
+      icone: '💛',
+      fitaIcone: '🎗️',
+      corHex: '#ffd700',
+      corGradiente: 'linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(234, 179, 8, 0.18))',
+      corBorda: 'rgba(255, 215, 0, 0.65)',
+      corGlow: '0 0 20px rgba(255, 215, 0, 0.45)',
+      corBadge: '#ffd700',
+      corBadgeTxt: '#0c162c',
+      fraseDestaque: 'Falar é a melhor solução. Você não está sozinho: cada vida no nosso time tem um valor infinito!',
+      explicacao: 'O Setembro Amarelo é a maior campanha mundial de valorização da vida e prevenção ao suicídio. Em momentos de dor ou sobrecarga, dialogar, acolher e escutar sem julgamentos é um divisor de águas. O Setembro Verde também destaca a importância da doação de órgãos.',
+      dicas: [
+        'Preste atenção aos sinais de isolamento ou desânimo em amigos e colegas de time.',
+        'Ofereça uma escuta atenta e empática, sem minimizar a dor de ninguém.',
+        'Se estiver passando por um momento difícil, converse com alguém de confiança ou ligue gratuitamente para o 188.'
+      ],
+      canaisApoio: [
+        { nome: 'CVV - Centro de Valorização da Vida', contato: 'Ligue 188 (Gratuito / Anônimo / 24h)', url: 'https://cvv.org.br' },
+        { nome: 'Campanha Setembro Amarelo Oficial', contato: 'setembroamarelo.com', url: 'https://www.setembroamarelo.com' }
+      ]
+    },
+    10: {
+      mes: 10,
+      nomeMes: 'Outubro',
+      corNome: 'Rosa',
+      titulo: 'Outubro Rosa',
+      subtitulo: 'Conscientização & Prevenção do Câncer de Mama',
+      icone: '🌸',
+      fitaIcone: '🎗️',
+      corHex: '#ec4899',
+      corGradiente: 'linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(244, 114, 182, 0.18))',
+      corBorda: 'rgba(236, 72, 153, 0.65)',
+      corGlow: '0 0 20px rgba(236, 72, 153, 0.45)',
+      corBadge: '#ec4899',
+      corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Um toque de amor próprio salva vidas. Incentive o autoexame e a mamografia regular!',
+      explicacao: 'O Outubro Rosa alerta para a importância do diagnóstico precoce do câncer de mama e do colo do útero. Quando descoberto nos estágios iniciais, as chances de cura chegam a 95%.',
+      dicas: [
+        'Incentive familiares e amigas a realizarem seus exames médicos periódicos e mamografias.',
+        'O autoexame das mamas ajuda no autoconhecimento e percepção de sinais precoces.',
+        'Alimentação equilibrada e esportes reduzem significativamente os fatores de risco.'
+      ],
+      canaisApoio: [
+        { nome: 'INCA - Instituto Nacional de Câncer', contato: 'inca.gov.br/outubro-rosa', url: 'https://www.inca.gov.br' },
+        { nome: 'FEMAMA - Federação Brasileira contra o Câncer de Mama', contato: 'femama.org.br', url: 'https://femama.org.br' }
+      ]
+    },
+    11: {
+      mes: 11,
+      nomeMes: 'Novembro',
+      corNome: 'Azul',
+      titulo: 'Novembro Azul',
+      subtitulo: 'Saúde do Homem & Prevenção ao Câncer de Próstata',
+      icone: '💙',
+      fitaIcone: '🎗️',
+      corHex: '#3b82f6',
+      corGradiente: 'linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(96, 165, 250, 0.18))',
+      corBorda: 'rgba(59, 130, 246, 0.65)',
+      corGlow: '0 0 20px rgba(59, 130, 246, 0.45)',
+      corBadge: '#2563eb',
+      corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Cuidar da saúde é atitude de campeão. Deixe o preconceito de lado e faça seus exames preventivos!',
+      explicacao: 'O Novembro Azul reforça a importância da atenção integral à saúde masculina, incentivando os homens a consultarem profissionais com frequência e realizarem exames preventivos para detecção precoce do câncer de próstata.',
+      dicas: [
+        'Homens a partir dos 45/50 anos devem manter o acompanhamento preventivo regular.',
+        'O diagnóstico precoce eleva para até 90% a probabilidade de cura do câncer de próstata.',
+        'Monitore a pressão arterial, realize check-ups e cultive um estilo de vida esportivo ativo.'
+      ],
+      canaisApoio: [
+        { nome: 'SBU - Sociedade Brasileira de Urologia', contato: 'portaldaurologia.org.br', url: 'https://portaldaurologia.org.br' },
+        { nome: 'Instituto Lado a Lado pela Vida', contato: 'ladoaladopelavida.org.br', url: 'https://ladoaladopelavida.org.br' }
+      ]
+    },
+    12: {
+      mes: 12,
+      nomeMes: 'Dezembro',
+      corNome: 'Vermelho & Laranja',
+      titulo: 'Dezembro Vermelho & Laranja',
+      subtitulo: 'Prevenção ao HIV/AIDS & Prevenção do Câncer de Pele',
+      icone: '❤️',
+      fitaIcone: '🎗️',
+      corHex: '#ef4444',
+      corGradiente: 'linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(249, 115, 22, 0.18))',
+      corBorda: 'rgba(239, 68, 68, 0.65)',
+      corGlow: '0 0 20px rgba(239, 68, 68, 0.45)',
+      corBadge: '#ef4444',
+      corBadgeTxt: '#ffffff',
+      fraseDestaque: 'Prevenção, respeito e proteção o ano inteiro: proteja sua pele sob o sol e cuide da sua saúde!',
+      explicacao: 'O Dezembro Vermelho mobiliza a luta contra o HIV, AIDS e outras ISTs, incentivando prevenção e combate ao estigma. O Dezembro Laranja alerta para proteção solar e combate ao câncer de pele no verão.',
+      dicas: [
+        'Use sempre preservativos e faça testes preventivos gratuitos disponíveis no SUS.',
+        'Use protetor solar, boné e hidratação redobrada em jogos sob sol intenso.',
+        'A empatia e a informação de qualidade são as maiores forças contra o preconceito.'
+      ],
+      canaisApoio: [
+        { nome: 'Departamento de HIV/AIDS e ISTs (MS)', contato: 'gov.br/aids', url: 'https://www.gov.br/aids' },
+        { nome: 'SBD - Sociedade Brasileira de Dermatologia', contato: 'sbd.org.br', url: 'https://www.sbd.org.br' }
+      ]
+    }
+  };
+
+  var campanhaSimuladaMes = null;
+
+  function campanhaAtiva(mesForcado) {
+    if (mesForcado && CAMPANHAS_ANO[mesForcado]) return CAMPANHAS_ANO[mesForcado];
+    if (campanhaSimuladaMes && CAMPANHAS_ANO[campanhaSimuladaMes]) return CAMPANHAS_ANO[campanhaSimuladaMes];
+    var cfg = (state.settings && state.settings.campanha) || {};
+    if (cfg.modo === 'off') return null;
+    var mes = (new Date()).getMonth() + 1;
+    if (cfg.modo && cfg.modo !== 'auto') {
+      var mNum = parseInt(cfg.modo, 10);
+      if (mNum >= 1 && mNum <= 12) mes = mNum;
+    }
+    return CAMPANHAS_ANO[mes] || null;
+  }
+
+  function fecharCampanhaBar() {
+    var dt = dataComemorativaAtiva();
+    var c = campanhaAtiva();
+    if (dt) {
+      try { sessionStorage.setItem('data_oculta_' + dt.id, '1'); } catch (e) {}
+    } else if (c) {
+      try { sessionStorage.setItem('campanha_oculta_' + c.mes, '1'); } catch (e) {}
+    }
+    var wrap = document.getElementById('campanha-bar-wrap');
+    if (wrap) wrap.innerHTML = '';
+  }
+
+  function renderCampanhaMes() {
+    var dt = dataComemorativaAtiva();
+    var c = campanhaAtiva();
+    var wrap = document.getElementById('campanha-bar-wrap');
+    var crest = document.getElementById('crest');
+    var topbar = document.querySelector('.topbar');
+
+    var ativo = dt || c;
+
+    if (!ativo) {
+      if (wrap) wrap.innerHTML = '';
+      if (topbar) {
+        topbar.style.borderBottomColor = '';
+        topbar.style.boxShadow = '';
+      }
+      var pinAnt = document.querySelector('.crest-ribbon-pin');
+      if (pinAnt && pinAnt.parentNode) pinAnt.parentNode.removeChild(pinAnt);
+      return;
+    }
+
+    /* Brilho e acento no topo */
+    if (topbar) {
+      topbar.style.borderBottom = '2px solid ' + ativo.corHex;
+      topbar.style.boxShadow = ativo.corGlow;
+    }
+
+    /* Laço / Pin no Escudo do time */
+    if (crest) {
+      var pin = crest.querySelector('.crest-ribbon-pin');
+      if (!pin) {
+        pin = document.createElement('div');
+        pin.className = 'crest-ribbon-pin';
+        crest.appendChild(pin);
+      }
+      pin.dataset.act = dt ? 'abrir-modal-data' : 'abrir-modal-campanha';
+      if (dt) pin.dataset.id = dt.id;
+      else pin.removeAttribute('data-id');
+      pin.style.background = ativo.corBadge;
+      pin.style.color = ativo.corBadgeTxt;
+      pin.style.boxShadow = ativo.corGlow;
+      pin.title = (dt ? ('Data Comemorativa: ' + dt.titulo) : ('Campanha do Mês: ' + c.titulo)) + ' (Clique para ver)';
+      pin.innerHTML = ativo.icone;
+    }
+
+    /* Faixa de aviso superior */
+    if (wrap) {
+      var chaveOculto = dt ? ('data_oculta_' + dt.id) : ('campanha_oculta_' + (c ? c.mes : '0'));
+      var oculto = false;
+      try { oculto = sessionStorage.getItem(chaveOculto) === '1'; } catch (e) {}
+      if (campanhaSimuladaMes || dataComemorativaSimuladaId) oculto = false;
+
+      if (oculto) {
+        wrap.innerHTML = '';
+      } else if (dt && c) {
+        /* Ambos ativos: divide harmoniosamente o espaço com ambas as tags e botões específicos */
+        wrap.innerHTML = '<div class="campanha-bar dual" style="background:linear-gradient(135deg, rgba(21,128,61,0.28), rgba(255,215,0,0.22));border-bottom:1px solid ' + dt.corBorda + '">' +
+          '<div class="campanha-bar-in">' +
+            '<span class="campanha-ribbon-tag" style="background:' + dt.corBadge + ';color:' + dt.corBadgeTxt + '">' + dt.icone + ' ' + esc(dt.tag.toUpperCase()) + '</span>' +
+            '<span class="campanha-ribbon-tag" style="background:' + c.corBadge + ';color:' + c.corBadgeTxt + '">' + c.icone + ' ' + esc(c.titulo.toUpperCase()) + '</span>' +
+            '<span class="campanha-bar-msg"><b>' + esc(dt.titulo) + ':</b> ' + esc(dt.fraseDestaque) + '</span>' +
+          '</div>' +
+          '<div class="campanha-bar-actions">' +
+            '<button class="campanha-btn-info" data-act="abrir-modal-data" data-id="' + dt.id + '">' + dt.icone + ' Homenagem</button>' +
+            '<button class="campanha-btn-info" data-act="abrir-modal-campanha" data-mes="' + c.mes + '">' + c.icone + ' ' + esc(c.titulo.split(' ')[0]) + '</button>' +
+            '<button class="campanha-close-btn" data-act="fechar-campanha-bar" title="Ocultar aviso">&#10005;</button>' +
+          '</div>' +
+        '</div>';
+      } else if (dt) {
+        /* Apenas Data Comemorativa ativa */
+        wrap.innerHTML = '<div class="campanha-bar" style="background:' + dt.corGradiente + ';border-bottom-color:' + dt.corBorda + '">' +
+          '<div class="campanha-bar-in">' +
+            '<span class="campanha-ribbon-tag" style="background:' + dt.corBadge + ';color:' + dt.corBadgeTxt + '">' + dt.icone + ' ' + esc(dt.tag.toUpperCase()) + '</span>' +
+            '<span class="campanha-bar-msg">' + esc(dt.fraseDestaque) + '</span>' +
+          '</div>' +
+          '<div class="campanha-bar-actions">' +
+            '<button class="campanha-btn-info" data-act="abrir-modal-data" data-id="' + dt.id + '">' + dt.icone + ' Homenagem</button>' +
+            '<button class="campanha-close-btn" data-act="fechar-campanha-bar" title="Ocultar aviso">&#10005;</button>' +
+          '</div>' +
+        '</div>';
+      } else {
+        /* Apenas Campanha do Mês ativa */
+        var msg = (state.settings && state.settings.campanha && state.settings.campanha.msgCustom) || c.fraseDestaque;
+        wrap.innerHTML = '<div class="campanha-bar" style="background:' + c.corGradiente + ';border-bottom-color:' + c.corBorda + '">' +
+          '<div class="campanha-bar-in">' +
+            '<span class="campanha-ribbon-tag" style="background:' + c.corBadge + ';color:' + c.corBadgeTxt + '">' + c.icone + ' ' + esc(c.titulo.toUpperCase()) + '</span>' +
+            '<span class="campanha-bar-msg">' + esc(msg) + '</span>' +
+          '</div>' +
+          '<div class="campanha-bar-actions">' +
+            '<button class="campanha-btn-info" data-act="abrir-modal-campanha" data-mes="' + c.mes + '">🎗️ Saber mais</button>' +
+            '<button class="campanha-close-btn" data-act="fechar-campanha-bar" title="Ocultar aviso">&#10005;</button>' +
+          '</div>' +
+        '</div>';
+      }
+    }
+  }
+
+  function modalCampanhaDoMes(mesAlvo) {
+    var mes = mesAlvo || (campanhaAtiva() ? campanhaAtiva().mes : (new Date()).getMonth() + 1);
+    var c = CAMPANHAS_ANO[mes] || CAMPANHAS_ANO[9];
+    var cfg = (state.settings && state.settings.campanha) || {};
+    var ehAdmin = podeEditar();
+
+    var h = '<div class="modal-head">' +
+      '<h3>' + c.icone + ' ' + esc(c.titulo) + '</h3>' +
+      '<button class="btn sm" data-act="fechar">&#10005; Fechar</button>' +
+    '</div>' +
+    '<div class="campanha-modal-banner" style="background:' + c.corGradiente + ';border-color:' + c.corBorda + '">' +
+      '<div class="campanha-modal-header">' +
+        '<span class="campanha-modal-ribbon">' + c.icone + '</span>' +
+        '<div>' +
+          '<h2 class="campanha-modal-title">' + esc(c.titulo) + '</h2>' +
+          '<div class="campanha-modal-sub">' + esc(c.subtitulo) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="campanha-modal-quote">&ldquo;' + esc(c.fraseDestaque) + '&rdquo;</div>' +
+    '</div>' +
+    '<div class="media-note" style="margin-bottom:14px;line-height:1.45">' + esc(c.explicacao) + '</div>' +
+    '<div class="campanha-sec-title">&#128161; Dicas & Prevenção</div>' +
+    '<div class="campanha-tips-list">' +
+      c.dicas.map(function (d) {
+        return '<div class="campanha-tip-item"><span class="campanha-tip-bullet">' + c.icone + '</span><span>' + esc(d) + '</span></div>';
+      }).join('') +
+    '</div>' +
+    '<div class="campanha-sec-title">&#9742;&#65039; Canais de Apoio & Informação Oficial</div>' +
+    '<div class="campanha-support-grid">' +
+      c.canaisApoio.map(function (ap) {
+        return '<a class="campanha-support-card" href="' + esc(ap.url) + '" target="_blank" rel="noopener">' +
+          '<span class="campanha-support-name">&#128279; ' + esc(ap.nome) + '</span>' +
+          '<span class="campanha-support-contact">' + esc(ap.contato) + ' &rarr;</span>' +
+        '</a>';
+      }).join('') +
+    '</div>' +
+    (ehAdmin ? (
+      '<div class="campanha-sec-title">&#129514; Visualizar e Testar Todos os 12 Meses (Admin)</div>' +
+      '<div class="media-note" style="margin-bottom:8px">Como administrador, você pode clicar em qualquer mês abaixo para testar o tema e aplicar o visual correspondente no site:</div>' +
+      '<div class="campanha-meses-grid">' +
+        [1,2,3,4,5,6,7,8,9,10,11,12].map(function (mNum) {
+          var item = CAMPANHAS_ANO[mNum];
+          var sel = (mNum === c.mes);
+          return '<button class="campanha-mes-pill' + (sel ? ' ativo' : '') + '" data-act="testar-campanha-mes" data-mes="' + mNum + '">' +
+            item.icone + ' ' + esc(item.nomeMes.slice(0, 3)) + ' <span style="font-size:10px;opacity:.85">(' + esc(item.corNome.split(' ')[0]) + ')</span>' +
+          '</button>';
+        }).join('') +
+      '</div>' +
+      '<div style="margin-top:16px;padding:12px;background:rgba(216,192,122,.08);border:1px solid rgba(216,192,122,.3);border-radius:10px">' +
+        '<div style="font-size:12.5px;font-weight:700;color:var(--ouro);margin-bottom:6px">&#128273; Configurações da Campanha no Site (Admin)</div>' +
+        '<div class="btn-pill" style="gap:6px">' +
+          '<button class="btn xs' + (!cfg.modo || cfg.modo === 'auto' ? ' pri' : '') + '" data-act="definir-campanha-modo" data-modo="auto">Modo Automático (Mês do Calendário)</button>' +
+          '<button class="btn xs' + (cfg.modo === String(c.mes) ? ' pri' : '') + '" data-act="definir-campanha-modo" data-modo="' + c.mes + '">Fixar ' + esc(c.titulo) + ' no Site</button>' +
+          '<button class="btn xs danger-soft' + (cfg.modo === 'off' ? ' pri' : '') + '" data-act="definir-campanha-modo" data-modo="off">Desativar Campanha</button>' +
+        '</div>' +
+      '</div>'
+    ) : '') +
+    '<div class="inline" style="margin-top:16px;justify-content:flex-end">' +
+      '<button class="btn pri" data-act="fechar">Entendi e Apoio essa Causa</button>' +
+    '</div>';
+
+    openModal(h);
+  }
+
+  function definirCampanhaModo(modo) {
+    if (!podeEditar()) { avisoPrecisaAdmin(); return; }
+    if (!state.settings) state.settings = {};
+    if (!state.settings.campanha) state.settings.campanha = {};
+    state.settings.campanha.modo = modo;
+    campanhaSimuladaMes = null;
+    save(true);
+    renderCampanhaMes();
+    render();
+    if (modo === 'auto') toast('Campanha definida para <b>Automático</b> (mês do calendário).', 'ok');
+    else if (modo === 'off') toast('Campanhas de conscientização foram <b>desativadas</b>.', 'warn');
+    else {
+      var c = CAMPANHAS_ANO[parseInt(modo, 10)];
+      toast('Campanha <b>' + (c ? c.titulo : modo) + '</b> fixada no site.', 'ok');
+    }
+  }
+
   /* =======================================================
      9. INICIALIZAÇÃO
      ======================================================= */
@@ -9864,8 +11620,8 @@ img,canvas,svg,video{max-width:100%}
     registrarVisita: registrarVisita, visitasStats: visitasStats, painelVisitas: painelVisitas,
     modalConvidado: modalConvidado, modalVisitas: modalVisitas, garantirVisitas: garantirVisitas,
     marcarEvolucao: marcarEvolucao, animarEvolucaoCartas: animarEvolucaoCartas, cardElenco: cardElenco,
-    get filaEvolucao() { return filaEvolucao; }
+    get filaEvolucao() { return filaEvolucao; }, CAMPANHAS_ANO: CAMPANHAS_ANO, campanhaAtiva: campanhaAtiva, modalCampanhaDoMes: modalCampanhaDoMes, renderCampanhaMes: renderCampanhaMes, aniversariantesHoje: aniversariantesHoje, proximosAniversariantes: proximosAniversariantes, popupAniversarioAtleta: popupAniversarioAtleta, painelAniversarios: painelAniversarios, modalNascimentosElenco: modalNascimentosElenco, DATAS_COMEMORATIVAS: DATAS_COMEMORATIVAS, dataComemorativaAtiva: dataComemorativaAtiva, modalDataComemorativa: modalDataComemorativa
   };
 })();
 
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41ce6aa4bce8dff',t:'MTc5MDUzNzE5Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d118e8a708dff',t:'MTc5MDUzODk1NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
