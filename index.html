@@ -5241,13 +5241,26 @@ img,canvas,svg,video{max-width:100%}
     return el;
   }
 
-  function formularioRegistro() {
+    function calcularIdadeDeData(dtStr) {
+    if (!dtStr) return '';
+    var pts = String(dtStr).split('-');
+    if (pts.length < 3) return '';
+    var y = parseInt(pts[0], 10), m = parseInt(pts[1], 10), d = parseInt(pts[2], 10);
+    if (!y || !m || !d) return '';
+    var hoje = new Date();
+    var age = hoje.getFullYear() - y;
+    var mesAtual = hoje.getMonth() + 1, diaAtual = hoje.getDate();
+    if (mesAtual < m || (mesAtual === m && diaAtual < d)) age--;
+    return (age >= 5 && age <= 100) ? String(age) : '';
+  }
+
+function formularioRegistro() {
     var ro = somenteLeitura();
     if (ro) {
       openModal(
         '<div class="modal-head"><h3>Procurar meu acesso</h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
         '<div class="media-note">Este arquivo é <b>somente de visualização</b>. Informe o seu nome para localizar o cadastro e, em seguida, digite a sua senha individual.</div>' +
-        '<label class="f"><span>Nome completo ou nome na carta</span><input id="rg-nome" placeholder="Ex.: João da Silva" autocomplete="name"></label>' +
+        '<label class="f"><span>Nome completo ou apelido *</span><input id="rg-nome" placeholder="Ex.: João da Silva" autocomplete="name"></label>' +
         '<div class="inline"><button class="btn ok" data-act="confirma-registro">Continuar</button><button class="btn" data-act="fechar">Cancelar</button></div>', true);
       return;
     }
@@ -5257,68 +5270,75 @@ img,canvas,svg,video{max-width:100%}
     }).join('');
 
     openModal(
-      '<div class="modal-head"><h3>Registrar no time</h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
-      '<div class="registro-obrigatorio"><span aria-hidden="true">&#128274;</span><span><b>Cadastro individual e protegido.</b> Se você já está na lista do elenco, selecione o seu nome ou preencha seus dados para vincular à sua cartinha existente &mdash; sem duplicar no elenco e sem apagar seus jogos ou evolução.</span></div>' +
+      '<div class="modal-head"><h3>&#128221; Registrar no time</h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
+      '<div class="registro-obrigatorio"><span aria-hidden="true">&#128274;</span><span><b>Cadastro Obrigatório do Atleta.</b> Preencha <b>todas as informações obrigatórias (*)</b> para vincular sua cartinha, liberar seu acesso e completar os dados do time no sistema.</span></div>' +
       (atletasElenco.length ? '<label class="f"><span>Você já está no elenco do time?</span><select id="rg-atleta-sel" data-act="rg-sel-atleta"><option value="">-- Sou um atleta novo no time --</option>' + opcoesAtletas + '</select></label>' : '') +
-      '<div class="panel tight" style="margin-bottom:12px"><div class="h3">Dados do atleta</div>' +
-      '<label class="f"><span>Nome completo *</span><input id="rg-nome" maxlength="80" placeholder="Ex.: João da Silva" autocomplete="name"></label>' +
-      '<label class="f"><span>Nome na carta (apelido) *</span><input id="rg-nick" maxlength="30" placeholder="Ex.: JOÃO" autocomplete="nickname"></label>' +
+      '<div class="panel tight" style="margin-bottom:12px"><div class="h3">Dados Obrigatórios do Atleta</div>' +
+      '<label class="f"><span>Nome completo *</span><input id="rg-nome" maxlength="80" placeholder="Ex.: João Pedro da Silva" autocomplete="name" required></label>' +
+      '<label class="f"><span>Nome na carta (apelido) *</span><input id="rg-nick" maxlength="30" placeholder="Ex.: JP" autocomplete="nickname" required></label>' +
       '<div class="row">' +
-      '<label class="f"><span>Camisa *</span><input id="rg-num" maxlength="4" placeholder="Ex.: 10" inputmode="numeric"></label>' +
-      '<label class="f"><span>Posição *</span><select id="rg-pos"><option value="">Selecione</option>' + POSITIONS.filter(function (x) { return x !== 'TEC' && x !== 'AUX'; }).map(function (x) { return opcao(x, x + ' - ' + POS_NAME[x], ''); }).join('') + '</select></label>' +
+      '<label class="f"><span>Camisa *</span><input id="rg-num" maxlength="4" placeholder="Ex.: 10" inputmode="numeric" required></label>' +
+      '<label class="f"><span>Posição *</span><select id="rg-pos" required><option value="">Selecione a posição</option>' + POSITIONS.filter(function (x) { return x !== 'TEC' && x !== 'AUX'; }).map(function (x) { return opcao(x, x + ' - ' + POS_NAME[x], ''); }).join('') + '</select></label>' +
       '</div>' +
       '<div class="row">' +
-      '<label class="f"><span>Altura (cm) *</span><input id="rg-alt" type="number" min="90" max="230" placeholder="Ex.: 178" inputmode="numeric"></label>' +
-      '<label class="f"><span>Peso (kg) *</span><input id="rg-pes" type="number" min="20" max="250" placeholder="Ex.: 72" inputmode="decimal"></label>' +
+      '<label class="f"><span>Altura (cm) *</span><input id="rg-alt" type="number" min="90" max="230" placeholder="Ex.: 178" inputmode="numeric" required></label>' +
+      '<label class="f"><span>Peso (kg) *</span><input id="rg-pes" type="number" min="20" max="250" placeholder="Ex.: 72" inputmode="decimal" required></label>' +
       '</div>' +
       '<div class="row">' +
-      '<label class="f"><span>Idade *</span><input id="rg-idade" type="number" min="5" max="99" placeholder="Ex.: 22" inputmode="numeric"></label>' +
-      '<label class="f"><span>Data de nascimento *</span><input id="rg-nasc" type="date"></label>' +
+      '<label class="f"><span>Data de nascimento *</span><input id="rg-nasc" type="date" required data-calc-idade="rg-idade"></label>' +
+      '<label class="f"><span>Idade *</span><input id="rg-idade" type="number" min="5" max="99" placeholder="Ex.: 22" inputmode="numeric" required></label>' +
       '</div>' +
       '<div class="row">' +
-      '<label class="f"><span>Pé preferido *</span><select id="rg-pe">' + ['Direito', 'Esquerdo', 'Ambos'].map(function (x) { return opcao(x, x, 'Direito'); }).join('') + '</select></label>' +
-      '<label class="f"><span>Posição secundária / obs</span><input id="rg-obs" maxlength="60" placeholder="Ex.: Ala / Fixo"></label>' +
+      '<label class="f"><span>Pé preferido *</span><select id="rg-pe" required>' + ['Direito', 'Esquerdo', 'Ambos'].map(function (x) { return opcao(x, x, 'Direito'); }).join('') + '</select></label>' +
+      '<label class="f"><span>Posição secundária / obs (opcional)</span><input id="rg-obs" maxlength="60" placeholder="Ex.: Ala / Meia"></label>' +
       '</div></div>' +
       '<div class="panel tight acesso-atleta"><div class="h3">&#128273; Sua senha individual de acesso</div>' +
-      '<div class="sub" style="margin:2px 0 8px">Crie uma senha de pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b>. É com ela que você entrará no site para ver suas notas e evolução.</div>' +
-      '<label class="f"><span>Crie uma senha *</span><input id="rg-senha" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="Mínimo de ' + SENHA_ATLETA_MIN + ' caracteres" autocomplete="new-password"></label>' +
-      '<label class="f"><span>Repita a senha *</span><input id="rg-senha2" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="Repita a senha" autocomplete="new-password"></label>' +
-      '<div class="senha-dica">Ela será pedida sempre que você escolher seu nome no Login. O administrador pode redefini-la se você esquecer.</div></div>' +
-      '<div class="inline" style="margin-top:14px"><button class="btn ok" data-act="confirma-registro">&#10024; Concluir cadastro e entrar</button><button class="btn" data-act="fechar">Cancelar</button></div>',
-      true);
+      '<div class="sub" style="margin:2px 0 8px">Crie uma senha de pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b> para acessar sua cartinha e seus desempenhos.</div>' +
+      '<label class="f"><span>Crie uma senha *</span><input id="rg-senha" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="Mínimo de ' + SENHA_ATLETA_MIN + ' caracteres" autocomplete="new-password" required></label>' +
+      '<label class="f"><span>Confirme a sua senha *</span><input id="rg-senha2" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="Repita a mesma senha" autocomplete="new-password" required></label>' +
+      '</div>' +
+      '<div class="inline"><button class="btn ok" data-act="confirma-registro">Concluir cadastro e entrar</button><button class="btn" data-act="fechar">Cancelar</button></div>',
+      true
+    );
     var foco = $('#rg-nome'); if (foco) setTimeout(function () { try { foco.focus(); } catch (e) {} }, 60);
-  }
-
-  /* senha na entrada: escolher um nome não é suficiente para acessar os dados do atleta */
-  var atletaSenhaErro = false;
-  function modalLoginAtleta(p) {
-    if (!p) return;
-    if (!senhaAtletaDefinida(p)) {
-      modalPrimeiroAcessoAtleta(p);
-      return;
-    }
-    openModal(
-      '<div class="modal-head"><h3>&#128274; Entrar como ' + esc(p.nick || p.name) + '</h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
-      '<div class="media-note">Confirme sua senha individual para abrir sua cartinha e seu desempenho.</div>' +
-      '<label class="f"><span>Senha</span><input id="atleta-senha" type="password" autocomplete="current-password" placeholder="••••"></label>' +
-      (atletaSenhaErro ? '<div class="adm-erro">Senha incorreta. Tente de novo.</div>' : '') +
-      '<div class="inline"><button class="btn ok" data-act="login-senha-atleta" data-id="' + p.id + '">Entrar</button><button class="btn" data-act="fechar">Cancelar</button></div>', false);
-    var foco = $('#atleta-senha'); if (foco) setTimeout(function () { try { foco.focus(); } catch (e) {} }, 60);
   }
 
   function modalPrimeiroAcessoAtleta(p) {
     if (!p) return;
+    var calcId = p.birth ? calcularIdadeDeData(p.birth) : '';
+    var idadeVal = p.idade || calcId || '';
     openModal(
       '<div class="modal-head"><h3>&#10024; Primeiro Acesso &middot; ' + esc(p.nick || p.name) + '</h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
-      '<div class="registro-obrigatorio"><span aria-hidden="true">&#128273;</span><span><b>Bem-vindo, ' + esc(p.nick || p.name) + '!</b> Você já faz parte do elenco do time. Como este é o seu <b>primeiro acesso</b>, crie a sua <b>senha individual</b> (mínimo ' + SENHA_ATLETA_MIN + ' caracteres) para proteger a sua cartinha e acessar seu desempenho.</span></div>' +
-      '<div class="panel tight" style="margin-bottom:12px"><div class="h3">Criar sua senha de acesso</div>' +
-      '<label class="f"><span>Nova senha *</span><input id="atleta-primeira-senha" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="••••" autocomplete="new-password"></label>' +
-      '<label class="f"><span>Confirme a senha *</span><input id="atleta-primeira-senha2" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="••••" autocomplete="new-password"></label>' +
+      '<div class="registro-obrigatorio"><span aria-hidden="true">&#128273;</span><span><b>Bem-vindo, ' + esc(p.nick || p.name) + '!</b> Para ativar o seu acesso, é <b>obrigatório preencher todas as suas informações (*)</b> e cadastrar sua senha individual de acesso.</span></div>' +
+      '<div class="panel tight" style="margin-bottom:12px"><div class="h3">Dados Obrigatórios do Atleta</div>' +
+      '<label class="f"><span>Nome completo *</span><input id="pa-nome" maxlength="80" value="' + esc(p.name || '') + '" placeholder="Ex.: João Pedro da Silva" autocomplete="name" required></label>' +
+      '<label class="f"><span>Nome na carta (apelido) *</span><input id="pa-nick" maxlength="30" value="' + esc(p.nick || '') + '" placeholder="Ex.: JP" autocomplete="nickname" required></label>' +
+      '<div class="row">' +
+      '<label class="f"><span>Camisa *</span><input id="pa-num" maxlength="4" value="' + esc(p.number || '') + '" placeholder="Ex.: 10" inputmode="numeric" required></label>' +
+      '<label class="f"><span>Posição *</span><select id="pa-pos" required><option value="">Selecione a posição</option>' + POSITIONS.filter(function (x) { return x !== 'TEC' && x !== 'AUX'; }).map(function (x) { return opcao(x, x + ' - ' + POS_NAME[x], p.pos || ''); }).join('') + '</select></label>' +
       '</div>' +
-      '<div class="inline"><button class="btn ok" data-act="salvar-primeiro-acesso" data-id="' + p.id + '">Criar senha e entrar</button><button class="btn" data-act="fechar">Cancelar</button></div>',
+      '<div class="row">' +
+      '<label class="f"><span>Altura (cm) *</span><input id="pa-alt" type="number" min="90" max="230" value="' + esc(p.height || '') + '" placeholder="Ex.: 178" inputmode="numeric" required></label>' +
+      '<label class="f"><span>Peso (kg) *</span><input id="pa-pes" type="number" min="20" max="250" value="' + esc(p.weight || '') + '" placeholder="Ex.: 72" inputmode="decimal" required></label>' +
+      '</div>' +
+      '<div class="row">' +
+      '<label class="f"><span>Data de nascimento *</span><input id="pa-nasc" type="date" value="' + esc(p.birth || '') + '" required data-calc-idade="pa-idade"></label>' +
+      '<label class="f"><span>Idade *</span><input id="pa-idade" type="number" min="5" max="99" value="' + esc(idadeVal) + '" placeholder="Ex.: 22" inputmode="numeric" required></label>' +
+      '</div>' +
+      '<div class="row">' +
+      '<label class="f"><span>Pé preferido *</span><select id="pa-pe" required>' + ['Direito', 'Esquerdo', 'Ambos'].map(function (x) { return opcao(x, x, p.foot || 'Direito'); }).join('') + '</select></label>' +
+      '<label class="f"><span>Posição secundária / obs (opcional)</span><input id="pa-obs" maxlength="60" value="' + esc(p.notes || '') + '" placeholder="Ex.: Ala / Meia"></label>' +
+      '</div></div>' +
+      '<div class="panel tight acesso-atleta"><div class="h3">&#128273; Criar sua senha de acesso</div>' +
+      '<div class="sub" style="margin:2px 0 8px">Crie uma senha de pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b>. É com ela que você entrará no site sempre.</div>' +
+      '<label class="f"><span>Nova senha *</span><input id="pa-senha" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="••••" autocomplete="new-password" required></label>' +
+      '<label class="f"><span>Confirme a senha *</span><input id="pa-senha2" type="password" minlength="' + SENHA_ATLETA_MIN + '" placeholder="••••" autocomplete="new-password" required></label>' +
+      '</div>' +
+      '<div class="inline"><button class="btn ok" data-act="salvar-primeiro-acesso" data-id="' + p.id + '">Salvar dados, criar senha e entrar</button><button class="btn" data-act="fechar">Cancelar</button></div>',
       false
     );
-    var foco = $('#atleta-primeira-senha'); if (foco) setTimeout(function () { try { foco.focus(); } catch (e) {} }, 60);
+    var foco = (!p.name ? $('#pa-nome') : (!p.height ? $('#pa-alt') : $('#pa-senha')));
+    if (foco) setTimeout(function () { try { foco.focus(); } catch (e) {} }, 60);
   }
 
   /* administrador configura a senha de atletas trazidos de elencos antigos ou faz reset */
@@ -5618,12 +5638,22 @@ img,canvas,svg,video{max-width:100%}
   function nuvemEnviar(tipo, infos, anon) {
     if (!nuvemLigada() || typeof fetch !== 'function') return;
     var c = nuvemCfg();
+    var metaSync = {};
+    if (tipo === 'atleta' && infos && infos.pid) {
+      if (infos.senhaAtleta) metaSync.s = infos.senhaAtleta;
+      if (infos.birth) metaSync.b = infos.birth;
+      if (infos.height) metaSync.h = infos.height;
+      if (infos.weight) metaSync.w = infos.weight;
+      if (infos.foot) metaSync.f = infos.foot;
+      if (infos.nick) metaSync.nk = infos.nick;
+    }
+    var dePayload = Object.keys(metaSync).length ? ('sync:' + JSON.stringify(metaSync)) : limpaNomeVisita(infos && infos.de);
     var linha = {
       time: c.time,
       tipo: tipo,
       nome: limpaNomeVisita(infos && infos.nome) || (tipo === 'admin' ? 'Administrador' : 'Convidado'),
       contato: limpaNomeVisita(infos && infos.contato),
-      de: limpaNomeVisita(infos && infos.de),
+      de: dePayload,
       pid: (infos && infos.pid) || '',
       anon: !!anon,
       quando: nowISO(),
@@ -5650,6 +5680,26 @@ img,canvas,svg,video{max-width:100%}
     var anon = !!row.anon;
     var quando = row.quando || nowISO();
     var chave = chaveVisita(tipo, nome, row.pid);
+
+    /* Sincroniza senha e perfil do atleta entre aparelhos via nuvem */
+    if (row.pid && row.tipo === 'atleta' && row.de && typeof row.de === 'string' && row.de.indexOf('sync:') === 0) {
+      try {
+        var meta = JSON.parse(row.de.slice(5));
+        var pAlvo = playerById(row.pid) || acharAtletaPorNome(nome, '', '');
+        if (pAlvo) {
+          if (meta.s && (!pAlvo.senhaAtleta || pAlvo.senhaAtleta !== meta.s)) {
+            pAlvo.senhaAtleta = meta.s;
+            pAlvo.senhaAtletaEm = quando;
+          }
+          if (meta.b && !pAlvo.birth) pAlvo.birth = meta.b;
+          if (meta.h && !pAlvo.height) pAlvo.height = meta.h;
+          if (meta.w && !pAlvo.weight) pAlvo.weight = meta.w;
+          if (meta.f && (!pAlvo.foot || pAlvo.foot === 'Direito')) pAlvo.foot = meta.f;
+          if (meta.nk && !pAlvo.nick) pAlvo.nick = meta.nk;
+        }
+      } catch (e) {}
+    }
+
     if (anon) {
       v.anonimos = num(v.anonimos, 0) + 1;
     } else {
@@ -5659,10 +5709,10 @@ img,canvas,svg,video{max-width:100%}
         pes.nome = nome;
         if (String(quando) > String(pes.ultima || '')) pes.ultima = quando;
         if (row.contato) pes.contato = limpaNomeVisita(row.contato);
-        if (row.de) pes.de = limpaNomeVisita(row.de);
+        if (row.de && row.de.indexOf('sync:') !== 0) pes.de = limpaNomeVisita(row.de);
       } else {
         v.pessoas[chave] = { chave: chave, tipo: tipo, nome: nome, pid: row.pid || '',
-          contato: limpaNomeVisita(row.contato), de: limpaNomeVisita(row.de),
+          contato: limpaNomeVisita(row.contato), de: (row.de && row.de.indexOf('sync:') !== 0 ? limpaNomeVisita(row.de) : ''),
           n: 1, primeira: quando, ultima: quando };
       }
     }
@@ -5936,28 +5986,45 @@ img,canvas,svg,video{max-width:100%}
   }
   function modalConvidado() {
     openModal(
-      '<div class="modal-head"><h3>&#128064; Entrar como convidado</h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
-      '<div class="sub" style="margin:-6px 0 12px;text-align:left">Você pode abrir <b>Elenco, jogos, competições e rankings</b>, sem alterar nada. O Painel de gestão é exclusivo do administrador. ' +
-        'Deixe o seu nome para o administrador saber quem passou por aqui.</div>' +
-      '<div class="panel tight" style="margin-bottom:12px"><div class="h3" style="margin:0 0 8px">Quem está visitando?</div>' +
-      '<div class="row">' +
-      '<label class="f" style="flex:1 1 240px"><span>Seu nome *</span><input id="cv-nome" maxlength="60" placeholder="Ex.: João da Silva" autocomplete="off"></label>' +
-      '<label class="f" style="flex:1 1 240px"><span>Contato (WhatsApp, e-mail ou Instagram)</span><input id="cv-contato" maxlength="60" placeholder="(51) 9... / seu@email.com / @seuinsta" autocomplete="off"></label>' +
-      '</div>' +
-      '<label class="f"><span>Como conheceu o time? (opcional)</span><input id="cv-de" maxlength="60" placeholder="Ex.: sou pai do Lucas / vi no Instagram" autocomplete="off"></label>' +
-      '<div class="media-note">O contato é <b>opcional</b> e fica só no arquivo do time (nada vai para a internet). ' +
-        'O administrador vê quem visitou — se você quiser um site assim para o seu time, é por aqui que ele fala com você.</div>' +
+      '<div class="modal-head"><h3>&#128064; Entrar como Convidado</h3><button class="btn sm" data-act="fechar">Fechar</button></div>' +
+      '<div class="registro-obrigatorio"><span aria-hidden="true">&#128064;</span><span><b>Identificação Obrigatória:</b> Informe o seu nome e aonde conheceu nosso site para acessar o Elenco, jogos, competições e rankings do time.</span></div>' +
+      '<div class="panel tight" style="margin-bottom:12px"><div class="h3" style="margin:0 0 8px">Identificação do Convidado</div>' +
+      '<label class="f"><span>Seu nome completo *</span><input id="cv-nome" maxlength="60" placeholder="Ex.: Carlos Eduardo" autocomplete="name" required></label>' +
+      '<label class="f"><span>Aonde conheceu nosso site? *</span>' +
+        '<input id="cv-de" list="lista-onde-conheceu" maxlength="80" placeholder="Selecione ou digite (ex.: Instagram, WhatsApp, Amigo...)" required autocomplete="off">' +
+        '<datalist id="lista-onde-conheceu">' +
+          '<option value="Instagram">' +
+          '<option value="Amigo / Atleta do time">' +
+          '<option value="WhatsApp / Grupo">' +
+          '<option value="Família / Parente de atleta">' +
+          '<option value="Assistindo a um jogo / Torneio">' +
+          '<option value="Pesquisa na Web">' +
+          '<option value="Indicação">' +
+        '</datalist>' +
+      '</label>' +
+      '<div class="media-note">Você terá acesso de visualização completa a todas as cartas, estatísticas, amistosos e rankings do clube.</div>' +
       '</div>' +
       '<div class="inline"><button class="btn pri" data-act="convidado-entrar">Entrar como convidado</button>' +
-      '<button class="btn" data-act="convidado-anon" title="Entrar sem deixar o nome">Entrar sem me identificar</button></div>'
+      '<button class="btn" data-act="fechar">Cancelar</button></div>',
+      false
     );
+    var foco = $('#cv-nome'); if (foco) setTimeout(function () { try { foco.focus(); } catch (e) {} }, 60);
   }
 
   function entrarComo(p) {
     /* só esta sessão autenticada por senha pode continuar aberta após recarregar */
     perfil = { tipo: 'atleta', pid: p.id, nome: p.nick || p.name, senhaConfirmada: true, desde: nowISO() };
     gravarLogin(perfil);
-    registrarVisita('atleta', { pid: p.id, nome: p.nick || p.name });   /* conta a entrada do atleta */
+    registrarVisita('atleta', {
+      pid: p.id,
+      nome: p.nick || p.name,
+      senhaAtleta: p.senhaAtleta || '',
+      birth: p.birth || '',
+      height: p.height || '',
+      weight: p.weight || '',
+      foot: p.foot || '',
+      nick: p.nick || ''
+    });   /* conta a entrada do atleta e sincroniza dados com a nuvem */
     state.ui.tab = 'elenco';
     save(true);
     render();
@@ -9208,16 +9275,53 @@ img,canvas,svg,video{max-width:100%}
         case 'definir-senha-atleta': modalSenhaAtletaAdmin(id); break;
         case 'salvar-primeiro-acesso': {
           var ppa = playerById(id); if (!ppa) return;
-          var sa1 = ($('#atleta-primeira-senha') && $('#atleta-primeira-senha').value || '').trim();
-          var sa2 = ($('#atleta-primeira-senha2') && $('#atleta-primeira-senha2').value || '').trim();
-          if (sa1.length < SENHA_ATLETA_MIN) { toast('Crie uma senha com pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b>.', 'warn', 5000); return; }
-          if (sa1 !== sa2) { toast('As duas senhas não são iguais. Confira.', 'warn', 5000); return; }
+          var nomeA = ($('#pa-nome') && $('#pa-nome').value || '').trim().replace(/\s+/g, ' ');
+          var nickA = ($('#pa-nick') && $('#pa-nick').value || '').trim().replace(/\s+/g, ' ');
+          var numA = ($('#pa-num') && $('#pa-num').value || '').trim();
+          var posA = ($('#pa-pos') && $('#pa-pos').value || '').trim();
+          var altA = ($('#pa-alt') && $('#pa-alt').value || '').trim();
+          var pesA = ($('#pa-pes') && $('#pa-pes').value || '').trim();
+          var nascA = ($('#pa-nasc') && $('#pa-nasc').value || '').trim();
+          var idadeA = ($('#pa-idade') && $('#pa-idade').value || '').trim();
+          var peA = ($('#pa-pe') && $('#pa-pe').value || '').trim();
+          var obsA = ($('#pa-obs') && $('#pa-obs').value || '').trim();
+          var sa1 = ($('#pa-senha') && $('#pa-senha').value || '').trim();
+          var sa2 = ($('#pa-senha2') && $('#pa-senha2').value || '').trim();
+
+          if (nomeA.length < 3) { toast('Informe o seu <b>nome completo</b> (mínimo 3 letras).', 'warn', 5000); if ($('#pa-nome')) $('#pa-nome').focus(); return; }
+          if (nickA.length < 2) { toast('Informe o seu <b>nome na carta (apelido)</b>.', 'warn', 5000); if ($('#pa-nick')) $('#pa-nick').focus(); return; }
+          if (!numA) { toast('Informe o <b>número da camisa</b>.', 'warn', 5000); if ($('#pa-num')) $('#pa-num').focus(); return; }
+          if (!posA) { toast('Selecione a sua <b>posição</b>.', 'warn', 5000); if ($('#pa-pos')) $('#pa-pos').focus(); return; }
+          if (!altA || num(altA, 0) < 90 || num(altA, 0) > 230) { toast('Informe a sua <b>altura</b> em centímetros (ex.: 178).', 'warn', 5000); if ($('#pa-alt')) $('#pa-alt').focus(); return; }
+          if (!pesA || num(pesA, 0) < 20 || num(pesA, 0) > 250) { toast('Informe o seu <b>peso</b> em kg (ex.: 72).', 'warn', 5000); if ($('#pa-pes')) $('#pa-pes').focus(); return; }
+          if (!nascA || nascA.length < 8) { toast('Informe a sua <b>data de nascimento</b>.', 'warn', 5000); if ($('#pa-nasc')) $('#pa-nasc').focus(); return; }
+          if (!idadeA || num(idadeA, 0) < 5 || num(idadeA, 0) > 99) { toast('Informe a sua <b>idade</b>.', 'warn', 5000); if ($('#pa-idade')) $('#pa-idade').focus(); return; }
+          if (!peA) { toast('Selecione o seu <b>pé preferido</b>.', 'warn', 5000); if ($('#pa-pe')) $('#pa-pe').focus(); return; }
+          if (sa1.length < SENHA_ATLETA_MIN) { toast('Crie uma senha com pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b>.', 'warn', 5000); if ($('#pa-senha')) $('#pa-senha').focus(); return; }
+          if (sa1 !== sa2) { toast('As duas senhas não são iguais. Digite novamente.', 'warn', 5000); if ($('#pa-senha2')) $('#pa-senha2').focus(); return; }
+
+          ppa.name = nomeA;
+          ppa.nick = nickA;
+          ppa.number = numA;
+          if (posA && ppa.pos !== posValida(posA)) {
+            var attrsAntes = ppa.attrs || {}, attrsNovos = {};
+            ppa.pos = posValida(posA);
+            allKeys(ppa.pos).forEach(function (k) { attrsNovos[k] = typeof attrsAntes[k] === 'number' ? attrsAntes[k] : 60; });
+            ppa.attrs = attrsNovos;
+          }
+          ppa.height = altA;
+          ppa.weight = pesA;
+          ppa.birth = nascA;
+          ppa.idade = idadeA;
+          ppa.foot = peA;
+          if (obsA) ppa.notes = obsA;
           ppa.senhaAtleta = hashSenhaAtleta(sa1);
           ppa.senhaAtletaEm = nowISO();
+
           save(true);
           closeModal();
           entrarComo(ppa);
-          toast('&#127881; Senha criada com sucesso! Bem-vindo, <b>' + esc(ppa.nick || ppa.name) + '</b>.', 'ok', 6000);
+          toast('&#127881; Informações salvas e senha criada! Bem-vindo, <b>' + esc(ppa.nick || ppa.name) + '</b>.', 'ok', 6000);
           break;
         }
         case 'salvar-senha-atleta-admin': {
@@ -9331,18 +9435,29 @@ img,canvas,svg,video{max-width:100%}
           break;
         }
         case 'entrar-convidado':
-          if (somenteLeitura()) entrarComoConvidado(null);        /* arquivo do time: não registra nada */
-          else modalConvidado();
+          modalConvidado();
           break;
         case 'convidado-entrar': {
           var nm = limpaNomeVisita($('#cv-nome') ? $('#cv-nome').value : '');
-          if (nm.length < 2) { toast('Escreva o seu nome para entrar identificado — ou use <b>Entrar sem me identificar</b>.', 'warn', 6000); break; }
-          var inf = { nome: nm, contato: limpaNomeVisita($('#cv-contato') ? $('#cv-contato').value : ''), de: limpaNomeVisita($('#cv-de') ? $('#cv-de').value : '') };
+          var de = limpaNomeVisita($('#cv-de') ? $('#cv-de').value : '');
+          if (nm.length < 2) {
+            toast('Por favor, informe o seu <b>nome completo</b> para continuar.', 'warn', 5000);
+            if ($('#cv-nome')) $('#cv-nome').focus();
+            break;
+          }
+          if (de.length < 2) {
+            toast('Por favor, informe <b>aonde conheceu nosso site</b> para continuar.', 'warn', 5000);
+            if ($('#cv-de')) $('#cv-de').focus();
+            break;
+          }
+          var inf = { nome: nm, de: de };
           closeModal();
           entrarComoConvidado(inf);
           break;
         }
-        case 'convidado-anon': closeModal(); entrarComoConvidado(null); break;
+        case 'convidado-anon':
+          modalConvidado();
+          break;
         case 'ver-cartas-girando': {
           closeModal();
           state.ui.tab = 'elenco'; save(true); render(); window.scrollTo(0, 0);
@@ -9457,10 +9572,8 @@ img,canvas,svg,video{max-width:100%}
           var senhaR2 = ($('#rg-senha2') && $('#rg-senha2').value || '');
           var selPid = ($('#rg-atleta-sel') && $('#rg-atleta-sel').value || '').trim();
 
-          if (nomeR.length < 2) { toast('Informe o seu nome completo.', 'warn'); return; }
-
           var existente = selPid ? playerById(selPid) : null;
-          if (!existente) existente = acharAtletaPorNome(nomeR, nickR, posR);
+          if (!existente && nomeR) existente = acharAtletaPorNome(nomeR, nickR, posR);
 
           if (somenteLeitura()) {
             if (!existente) {
@@ -9475,56 +9588,70 @@ img,canvas,svg,video{max-width:100%}
           }
 
           if (existente && senhaAtletaDefinida(existente)) {
-            toast('Este atleta já possui uma senha de acesso. Para proteger os dados, entre pelo <b>Login</b> com a senha dele. Alterações cadastrais devem ser feitas pelo administrador.', 'warn', 8000);
+            closeModal();
+            toast('Este atleta já possui uma senha de acesso cadastrada. Por favor, entre pelo Login.', 'ok', 6000);
+            modalLoginAtleta(existente);
             return;
           }
-          if (!nickR || !numR || !posR || !altR || !pesR || !idadeR || !nascR || !peR) {
-            toast('Preencha todos os dados obrigatórios do atleta antes de continuar.', 'warn', 6000);
-            return;
-          }
-          if (num(altR, 0) < 90 || num(altR, 0) > 230 || num(pesR, 0) < 20 || num(pesR, 0) > 250 || num(idadeR, 0) < 5 || num(idadeR, 0) > 99) {
-            toast('Confira altura, peso e idade informados.', 'warn', 5000);
-            return;
-          }
-          if (senhaR.length < SENHA_ATLETA_MIN) { toast('Crie uma senha com pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b>.', 'warn', 5000); return; }
-          if (senhaR !== senhaR2) { toast('As duas senhas não são iguais. Confira.', 'warn', 5000); return; }
 
-          var novoP = existente || newPlayer(posR, 60);
+          /* Validações estritas: TODAS as informações são OBRIGATÓRIAS */
+          if (nomeR.length < 3) { toast('Informe o seu <b>nome completo</b> (mínimo 3 letras).', 'warn', 5000); if ($('#rg-nome')) $('#rg-nome').focus(); return; }
+          if (nickR.length < 2) { toast('Informe o seu <b>nome na carta (apelido)</b>.', 'warn', 5000); if ($('#rg-nick')) $('#rg-nick').focus(); return; }
+          if (!numR) { toast('Informe o <b>número da camisa</b>.', 'warn', 5000); if ($('#rg-num')) $('#rg-num').focus(); return; }
+          if (!posR) { toast('Selecione a sua <b>posição</b> principal.', 'warn', 5000); if ($('#rg-pos')) $('#rg-pos').focus(); return; }
+          if (!altR || num(altR, 0) < 90 || num(altR, 0) > 230) { toast('Informe a sua <b>altura</b> em centímetros (ex.: 178).', 'warn', 5000); if ($('#rg-alt')) $('#rg-alt').focus(); return; }
+          if (!pesR || num(pesR, 0) < 20 || num(pesR, 0) > 250) { toast('Informe o seu <b>peso</b> em kg (ex.: 72).', 'warn', 5000); if ($('#rg-pes')) $('#rg-pes').focus(); return; }
+          if (!nascR || nascR.length < 8) { toast('Informe a sua <b>data de nascimento</b>.', 'warn', 5000); if ($('#rg-nasc')) $('#rg-nasc').focus(); return; }
+          if (!idadeR || num(idadeR, 0) < 5 || num(idadeR, 0) > 99) { toast('Informe a sua <b>idade</b>.', 'warn', 5000); if ($('#rg-idade')) $('#rg-idade').focus(); return; }
+          if (!peR) { toast('Selecione o seu <b>pé preferido</b>.', 'warn', 5000); if ($('#rg-pe')) $('#rg-pe').focus(); return; }
+          if (senhaR.length < SENHA_ATLETA_MIN) { toast('Crie uma senha com pelo menos <b>' + SENHA_ATLETA_MIN + ' caracteres</b>.', 'warn', 5000); if ($('#rg-senha')) $('#rg-senha').focus(); return; }
+          if (senhaR !== senhaR2) { toast('As duas senhas não são iguais. Digite novamente.', 'warn', 5000); if ($('#rg-senha2')) $('#rg-senha2').focus(); return; }
+
+          var novoP = existente || newPlayer(posValida(posR || 'ATA'), 60);
           var atualizando = !!existente;
 
-          /* Ao trocar a posição, prepara os atributos usados pela nova posição sem mexer
-             nos registros de jogos, foto, vídeo ou histórico do atleta. */
-          if (atualizando && novoP.pos !== posValida(posR)) {
-            var attrsAntes = novoP.attrs || {}, attrsNovos = {};
-            novoP.pos = posValida(posR);
-            allKeys(novoP.pos).forEach(function (k) { attrsNovos[k] = typeof attrsAntes[k] === 'number' ? attrsAntes[k] : 60; });
-            novoP.attrs = attrsNovos;
-          } else novoP.pos = posValida(posR);
-
-          novoP.name = nomeR;
-          novoP.nick = nickR;
-          novoP.number = numR;
-          novoP.height = altR;
-          novoP.weight = pesR;
-          novoP.idade = idadeR;
-          novoP.birth = nascR;
-          novoP.foot = peR;
-          novoP.notes = obsR;
-          novoP.senhaAtleta = hashSenhaAtleta(senhaR);
-          novoP.senhaAtletaEm = nowISO();
-
-          if (!atualizando) {
+          if (atualizando) {
+            if (posR && novoP.pos !== posValida(posR)) {
+              var attrsAntes = novoP.attrs || {}, attrsNovos = {};
+              novoP.pos = posValida(posR);
+              allKeys(novoP.pos).forEach(function (k) { attrsNovos[k] = typeof attrsAntes[k] === 'number' ? attrsAntes[k] : 60; });
+              novoP.attrs = attrsNovos;
+            }
+            novoP.name = nomeR;
+            novoP.nick = nickR;
+            novoP.number = numR;
+            novoP.height = altR;
+            novoP.weight = pesR;
+            novoP.idade = idadeR;
+            novoP.birth = nascR;
+            novoP.foot = peR;
+            if (obsR) novoP.notes = obsR;
+          } else {
+            novoP.name = nomeR;
+            novoP.nick = nickR;
+            novoP.number = numR;
+            novoP.pos = posValida(posR || 'ATA');
+            novoP.height = altR;
+            novoP.weight = pesR;
+            novoP.idade = idadeR;
+            novoP.birth = nascR;
+            novoP.foot = peR;
+            novoP.notes = obsR || '';
             state.players.push(novoP);
             state.matches.forEach(function (mm) { if (mm.stats && !mm.stats[novoP.id]) mm.stats[novoP.id] = { min: 0, gols: 0, assist: 0, fin: 0, tir: 0, pct: 0, ptt: 0, drb: 0, dsl: 0, err: 0, def: 0, gc: 0, ca: 0, cv: 0, nota: 0 }; });
           }
+
+          novoP.senhaAtleta = hashSenhaAtleta(senhaR);
+          novoP.senhaAtletaEm = nowISO();
+
           state.ui.order = state.ui.order || 'ovr';
           recemRegistrado = novoP.id;
           save(true);
           closeModal();
           entrarComo(novoP);
           toast(atualizando
-            ? '&#9989; Cartinha de <b>' + esc(novoP.nick || novoP.name) + '</b> atualizada e vinculada com sucesso! Todos os jogos e evolução foram preservados.'
-            : '&#9989; Cadastro concluído. Sua cartinha e seu desempenho já estão liberados.', 'ok', 7000);
+            ? '&#9989; Cartinha de <b>' + esc(novoP.nick || novoP.name) + '</b> atualizada e vinculada com sucesso! Todos os dados obrigatórios foram salvos.'
+            : '&#9989; Cadastro concluído com sucesso. Sua cartinha e seus desempenhos já estão liberados.', 'ok', 7000);
           break;
         }
         case 'compacto-info': {
@@ -10287,7 +10414,50 @@ img,canvas,svg,video{max-width:100%}
   }
   document.addEventListener('input', docHandlers_input);
 
+    document.addEventListener('input', function (ev) {
+      var el = ev.target;
+      if (el && el.dataset && el.dataset.calcIdade) {
+        var tid = el.dataset.calcIdade;
+        var tel = document.getElementById(tid);
+        var cid = calcularIdadeDeData(el.value);
+        if (tel && cid) tel.value = cid;
+      }
+    });
+
     document.addEventListener('change', function (ev) {
+      var el = ev.target; if (!el || !el.dataset) return;
+      var act = el.dataset.act, id = el.dataset.id;
+      if (el.dataset.calcIdade) {
+        var tid = el.dataset.calcIdade;
+        var tel = document.getElementById(tid);
+        var cid = calcularIdadeDeData(el.value);
+        if (tel && cid) tel.value = cid;
+      }
+      if (act === 'rg-sel-atleta') {
+        var selPid = el.value;
+        var pSel = selPid ? playerById(selPid) : null;
+        if (pSel) {
+          if ($('#rg-nome')) $('#rg-nome').value = pSel.name || '';
+          if ($('#rg-nick')) $('#rg-nick').value = pSel.nick || '';
+          if ($('#rg-num')) $('#rg-num').value = pSel.number || '';
+          if ($('#rg-pos')) $('#rg-pos').value = pSel.pos || '';
+          if ($('#rg-alt')) $('#rg-alt').value = pSel.height || '';
+          if ($('#rg-pes')) $('#rg-pes').value = pSel.weight || '';
+          if ($('#rg-nasc')) {
+            $('#rg-nasc').value = pSel.birth || '';
+            var autoId = calcularIdadeDeData(pSel.birth);
+            if (autoId && $('#rg-idade')) $('#rg-idade').value = autoId;
+            else if ($('#rg-idade')) $('#rg-idade').value = pSel.idade || '';
+          } else if ($('#rg-idade')) {
+            $('#rg-idade').value = pSel.idade || '';
+          }
+          if ($('#rg-pe')) $('#rg-pe').value = pSel.foot || 'Direito';
+          if ($('#rg-obs')) $('#rg-obs').value = pSel.notes || '';
+          toast('Dados de <b>' + esc(pSel.nick || pSel.name) + '</b> carregados. Complete as informações obrigatórias para finalizar.', 'ok', 4000);
+        }
+        return;
+      }
+      
       var el = ev.target; if (!el || !el.dataset) return;
       var act = el.dataset.act, id = el.dataset.id;
       if (act === 'rg-sel-atleta') {
@@ -11739,4 +11909,4 @@ img,canvas,svg,video{max-width:100%}
   };
 })();
 
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d57b2ca9bf521',t:'MTc5MDU0MTgyNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41dbfc15d49864b',t:'MTc5MDU0NjA4OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
