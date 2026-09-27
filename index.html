@@ -2184,6 +2184,35 @@ img,canvas,svg,video{max-width:100%}
   border: 1px solid rgba(91, 140, 255, 0.4);
 }
 
+
+/* Botão / Pill do Mês no Canto Superior */
+.top-campanha-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  animation: pulseFloat 3s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.top-campanha-pill:hover {
+  transform: scale(1.06);
+  filter: brightness(1.15);
+}
+@media (max-width: 560px) {
+  .top-campanha-pill {
+    padding: 4px 8px;
+    font-size: 10.5px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5753,8 +5782,10 @@ img,canvas,svg,video{max-width:100%}
   function painelVisitas() {
     var st = visitasStats();
     var admin = podeEditar();
-    var tops = Object.keys(st.mapa).map(function (k) { return st.mapa[k]; })
-      .sort(function (a, b) { return num(b.n, 0) - num(a.n, 0) || String(b.ultima || '').localeCompare(String(a.ultima || '')); }).slice(0, 6);
+    var todosTops = Object.keys(st.mapa).map(function (k) { return st.mapa[k]; })
+      .sort(function (a, b) { return num(b.n, 0) - num(a.n, 0) || String(b.ultima || '').localeCompare(String(a.ultima || '')); });
+    var expandido = !!(state.ui && state.ui.visitasTopsExpandido);
+    var tops = expandido ? todosTops : todosTops.slice(0, 4);
 
     var corpo = '' +
       (admin && !nuvemLigada() ? '<div class="cr-note" style="margin-bottom:12px">&#128161; Os acessos feitos em <b>outros celulares</b> ficam guardados naquele aparelho. Toque em <b>&#9729; Nuvem</b> para ligar a sincronização e ver todo mundo aqui.</div>' : '') +
@@ -5769,12 +5800,26 @@ img,canvas,svg,video{max-width:100%}
         'Se você está vendo esta tela depois de <b>restaurar um backup antigo</b>, os acessos anteriores a esta versão não existem (o contador começou agora).</div>') +
       '<div class="grid g-2" style="margin-bottom:4px">' +
       '<div class="panel tight"><div class="h4">Entradas por dia (últimos 14 dias)</div>' + graficoVisitas(14) + '</div>' +
-      '<div class="panel tight"><div class="h4">Quem mais entra</div>' +
-        (tops.length ? '<div class="visita-tops">' + tops.map(function (x, i) {
+      '<div class="panel tight">' +
+        '<div class="h4" style="display:flex;align-items:center;justify-content:space-between;gap:8px">' +
+          '<span>Quem mais entra</span>' +
+          (todosTops.length > 4 ?
+            '<button class="btn xs ghost" data-act="toggle-visitas-tops" style="font-size:11px;padding:2px 7px" title="' + (expandido ? 'Mostrar menos' : 'Ver todos') + '">' +
+              (expandido ? '▲ Retrair' : '▼ Expandir (' + todosTops.length + ')') +
+            '</button>' : '') +
+        '</div>' +
+        (tops.length ? '<div class="visita-tops" style="' + (expandido ? 'max-height:360px;overflow-y:auto;' : '') + '">' + tops.map(function (x, i) {
           return '<div class="vt-linha" style="animation-delay:' + (i * 45) + 'ms"><span class="vt-i">' + (x.tipo === 'atleta' ? '&#128100;' : (x.tipo === 'admin' ? '&#128273;' : '&#128064;')) + '</span>' +
-            '<span class="vt-n">' + esc(x.nome) + '<em>' + num(x.n, 1) + ' entrada(s)</em></span>' +
+            '<span class="vt-n">' + esc(x.nome) + '<em>' + num(x.n, 1) + ' entrada(s)' + (x.ultima ? ' &middot; última ' + fmtDate(x.ultima) : '') + '</em></span>' +
             '<span class="vt-q">' + num(x.n, 1) + '</span></div>';
-        }).join('') + '</div>' : '<div class="empty" style="padding:14px">Sem registros ainda.</div>') +
+        }).join('') +
+        (todosTops.length > 4 ?
+          '<div style="text-align:center;margin-top:8px;padding-top:6px;border-top:1px dashed var(--line)">' +
+            '<button class="btn xs ghost" data-act="toggle-visitas-tops" style="width:100%;font-size:11px">' +
+              (expandido ? '▲ Retrair lista (mostrar menos)' : '▼ Ver lista completa (' + todosTops.length + ' pessoas)') +
+            '</button>' +
+          '</div>' : '') +
+        '</div>' : '<div class="empty" style="padding:14px">Sem registros ainda.</div>') +
       '</div>' +
       '</div>' +
       '<div class="panel tight" style="margin-bottom:16px"><div class="h4">Convidados ' + (admin ? '(com contato)' : '') + '</div>' +
@@ -8657,6 +8702,12 @@ img,canvas,svg,video{max-width:100%}
           modalNascimentosElenco();
           break;
         }
+        case 'toggle-visitas-tops': {
+          if (!state.ui) state.ui = {};
+          state.ui.visitasTopsExpandido = !state.ui.visitasTopsExpandido;
+          renderPainel();
+          break;
+        }
         case 'abrir-modal-data': {
           var idDt = el.dataset.id || (dataComemorativaAtiva() ? dataComemorativaAtiva().id : 'independencia');
           modalDataComemorativa(idDt);
@@ -11343,8 +11394,17 @@ img,canvas,svg,video{max-width:100%}
     var dt = dataComemorativaAtiva();
     var c = campanhaAtiva();
     var wrap = document.getElementById('campanha-bar-wrap');
+    if (!wrap) {
+      var tbEl = document.querySelector('.topbar');
+      if (tbEl && tbEl.parentNode) {
+        wrap = document.createElement('div');
+        wrap.id = 'campanha-bar-wrap';
+        tbEl.parentNode.insertBefore(wrap, tbEl);
+      }
+    }
     var crest = document.getElementById('crest');
     var topbar = document.querySelector('.topbar');
+    var topActions = document.querySelector('.top-actions');
 
     var ativo = dt || c;
 
@@ -11381,6 +11441,26 @@ img,canvas,svg,video{max-width:100%}
       pin.style.boxShadow = ativo.corGlow;
       pin.title = (dt ? ('Data Comemorativa: ' + dt.titulo) : ('Campanha do Mês: ' + c.titulo)) + ' (Clique para ver)';
       pin.innerHTML = ativo.icone;
+    }
+
+    /* Chip / Botão no Canto Superior (.top-actions) */
+    if (topActions) {
+      var pill = document.getElementById('top-campanha-pill');
+      if (!pill) {
+        pill = document.createElement('button');
+        pill.id = 'top-campanha-pill';
+        pill.className = 'top-campanha-pill';
+        topActions.insertBefore(pill, topActions.firstChild);
+      }
+      pill.dataset.act = dt ? 'abrir-modal-data' : 'abrir-modal-campanha';
+      if (dt) pill.dataset.id = dt.id;
+      else pill.removeAttribute('data-id');
+      pill.style.background = 'linear-gradient(135deg, ' + ativo.corBadge + '33, ' + ativo.corHex + '22)';
+      pill.style.borderColor = ativo.corBorda || ativo.corHex;
+      pill.style.color = ativo.corHex;
+      pill.style.boxShadow = ativo.corGlow;
+      pill.title = (dt ? ('Data Comemorativa: ' + dt.titulo) : ('Campanha do Mês: ' + c.titulo)) + ' (Clique para ver)';
+      pill.innerHTML = '<span style="font-size:13px">' + ativo.icone + '</span> <span>' + esc(dt ? dt.tag.split('·')[1] || dt.titulo : c.titulo) + '</span>';
     }
 
     /* Faixa de aviso superior */
@@ -11624,4 +11704,4 @@ img,canvas,svg,video{max-width:100%}
   };
 })();
 
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d118e8a708dff',t:'MTc5MDUzODk1NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a41d21ee295c8dff',t:'MTc5MDUzOTYyNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
