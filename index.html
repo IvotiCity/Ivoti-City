@@ -3025,6 +3025,7 @@ img,canvas,svg,video{max-width:100%}
       state.settings.calibragem = CALIBRAGEM;
       state.settings.recalibrou = antigo && antigo !== state.settings.xpPerPE ? antigo : 0;
     }
+    if (!Array.isArray(state.notasAdmin)) state.notasAdmin = [];
     if (!state.ui) state.ui = defaultState().ui;
     if (!state.ui.rankTipo) state.ui.rankTipo = 'todos';
     if (typeof state.ui.rankComp === 'undefined') state.ui.rankComp = '';
@@ -4841,6 +4842,12 @@ img,canvas,svg,video{max-width:100%}
     document.title = (state.team.name || 'Meu Time') + ' - Evolução';
     chipUsuario();
     renderCampanhaMes();
+    var btnNovidades = document.querySelector('button[data-act="notas-atualizacao"]');
+    if (btnNovidades) {
+      var vSite = versaoAtualSite();
+      btnNovidades.innerHTML = '📢 Novidades <span class="badge ok xs" style="font-size:10px;padding:1px 5px;margin-left:3px">' + esc(vSite) + '</span>';
+      btnNovidades.title = 'Ver as novidades da versão ' + esc(vSite) + ' e recursos de segurança';
+    }
   }
 
   function renderPainel() {
@@ -5755,6 +5762,10 @@ function formularioRegistro() {
     if (!nuvemLigada() || typeof fetch !== 'function') return;
     var c = nuvemCfg();
     var metaSync = {};
+    if (tipo === 'admin' && infos) {
+      if (Array.isArray(infos.notasAdmin)) metaSync.notas = infos.notasAdmin;
+      if (infos.versaoSite) metaSync.versaoSite = infos.versaoSite;
+    }
     if (tipo === 'atleta' && infos && infos.pid) {
       if (infos.senhaAtleta) metaSync.s = infos.senhaAtleta;
       if (infos.birth) metaSync.b = infos.birth;
@@ -5797,7 +5808,31 @@ function formularioRegistro() {
     var quando = row.quando || nowISO();
     var chave = chaveVisita(tipo, nome, row.pid);
 
-    /* Sincroniza senha e perfil do atleta entre aparelhos via nuvem */
+    /* Sincroniza senha, perfil e comunicados entre aparelhos via nuvem */
+    if (row.de && typeof row.de === 'string' && row.de.indexOf('sync:') === 0) {
+      try {
+        var meta = JSON.parse(row.de.slice(5));
+        if (meta.versaoSite && typeof meta.versaoSite === 'string') {
+          if (!state.settings) state.settings = {};
+          state.settings.versaoSite = meta.versaoSite;
+          renderTopbar();
+        }
+        if (meta.notas && Array.isArray(meta.notas)) {
+          if (!Array.isArray(state.notasAdmin)) state.notasAdmin = [];
+          meta.notas.forEach(function (n) {
+            var existIdx = -1;
+            for (var ni = 0; ni < state.notasAdmin.length; ni++) {
+              if (state.notasAdmin[ni].id === n.id) { existIdx = ni; break; }
+            }
+            if (existIdx >= 0) state.notasAdmin[existIdx] = n;
+            else state.notasAdmin.push(n);
+          });
+          state.notasAdmin.sort(function (a, b) {
+            return (b.fixado ? 1 : 0) - (a.fixado ? 1 : 0) || String(b.data || '').localeCompare(String(a.data || ''));
+          });
+        }
+      } catch (e) {}
+    }
     if (row.pid && row.tipo === 'atleta' && row.de && typeof row.de === 'string' && row.de.indexOf('sync:') === 0) {
       try {
         var meta = JSON.parse(row.de.slice(5));
@@ -9622,6 +9657,92 @@ function formularioRegistro() {
           break;
         }
         case 'notas-atualizacao': modalNotasAtualizacao(); break;
+        case 'abrir-nova-nota-admin': modalEditorNotaAdmin(); break;
+        case 'editar-nota-admin': modalEditorNotaAdmin(id); break;
+        case 'fechar-editor-nota': modalNotasAtualizacao(); break;
+        case 'excluir-nota-admin': {
+          if (!podeEditar()) { avisoPrecisaAdmin(); return; }
+          if (!confirm('Deseja realmente excluir este comunicado?')) return;
+          if (!Array.isArray(state.notasAdmin)) state.notasAdmin = [];
+          state.notasAdmin = state.notasAdmin.filter(function (x) { return x.id !== id; });
+          save(true);
+          nuvemEnviar('admin', { nome: 'Administrador', notasAdmin: state.notasAdmin });
+          modalNotasAtualizacao();
+          toast('Comunicado excluído com sucesso.', 'ok', 4000);
+          break;
+        }
+        case 'toggle-campo-versao': {
+          var chkV = document.getElementById('nota-nova-versao');
+          var blkV = document.getElementById('bloco-campo-versao');
+          if (chkV && blkV) {
+            blkV.style.display = chkV.checked ? 'block' : 'none';
+            if (chkV.checked) {
+              var inpV = document.getElementById('nota-versao');
+              if (inpV && !inpV.value) inpV.value = versaoSugerida();
+              if (inpV) setTimeout(function () { try { inpV.focus(); } catch (e) {} }, 60);
+            }
+          }
+          break;
+        }
+        case 'salvar-nota-admin': {
+          if (!podeEditar()) { avisoPrecisaAdmin(); return; }
+          var tTit = ($('#nota-titulo') && $('#nota-titulo').value || '').trim();
+          var tCat = ($('#nota-cat') && $('#nota-cat').value || 'comunicado').trim();
+          var tData = ($('#nota-data') && $('#nota-data').value || '').trim() || (new Date()).toISOString().slice(0, 10);
+          var tTexto = ($('#nota-texto') && $('#nota-texto').value || '').trim();
+          var tFix = !!($('#nota-fixado') && $('#nota-fixado').checked);
+          var tNovaV = !!($('#nota-nova-versao') && $('#nota-nova-versao').checked);
+          var tVersao = tNovaV ? ($('#nota-versao') && $('#nota-versao').value || '').trim() : '';
+          if (tNovaV && !tVersao) tVersao = versaoSugerida();
+
+          if (tTit.length < 2) { toast('Por favor, informe o título do comunicado.', 'warn', 4000); if ($('#nota-titulo')) $('#nota-titulo').focus(); return; }
+          if (tTexto.length < 2) { toast('Por favor, escreva a mensagem do comunicado.', 'warn', 4000); if ($('#nota-texto')) $('#nota-texto').focus(); return; }
+
+          if (tNovaV && tVersao) {
+            if (!state.settings) state.settings = {};
+            state.settings.versaoSite = tVersao;
+            state.settings.versaoAtualizadaEm = nowISO();
+          }
+
+          if (!Array.isArray(state.notasAdmin)) state.notasAdmin = [];
+          var notaExistente = id ? state.notasAdmin.find(function (x) { return x.id === id; }) : null;
+
+          if (notaExistente) {
+            notaExistente.titulo = tTit;
+            notaExistente.categoria = tCat;
+            notaExistente.data = tData;
+            notaExistente.texto = tTexto;
+            notaExistente.fixado = tFix;
+            notaExistente.versao = tVersao;
+            notaExistente.atualizadoEm = nowISO();
+          } else {
+            var novaNotaObj = {
+              id: uid('nota'),
+              titulo: tTit,
+              categoria: tCat,
+              data: tData,
+              texto: tTexto,
+              fixado: tFix,
+              versao: tVersao,
+              autor: (perfil && perfil.nome && perfil.nome !== 'Convidado') ? perfil.nome : 'Administrador',
+              criadoEm: nowISO()
+            };
+            state.notasAdmin.unshift(novaNotaObj);
+          }
+
+          state.notasAdmin.sort(function (a, b) {
+            return (b.fixado ? 1 : 0) - (a.fixado ? 1 : 0) || String(b.data || '').localeCompare(String(a.data || ''));
+          });
+
+          save(true);
+          nuvemEnviar('admin', { nome: 'Administrador', notasAdmin: state.notasAdmin, versaoSite: (state.settings && state.settings.versaoSite) });
+          renderTopbar();
+          modalNotasAtualizacao();
+          toast(tNovaV
+            ? '&#128640; <b>Nova versão ' + esc(tVersao) + '</b> lançada e publicada com sucesso!'
+            : '&#9989; Comunicado <b>' + esc(tTit) + '</b> publicado com sucesso!', 'ok', 6000);
+          break;
+        }
         case 'visitas-abrir': modalVisitas(); break;
         case 'export-csv-visitas': {
           var vs = visitasStats(), ad = podeEditar();
@@ -11364,14 +11485,160 @@ function formularioRegistro() {
     return null;
   }
 
-    function modalNotasAtualizacao() {
+      function versaoAtualSite() {
+    if (state.settings && state.settings.versaoSite) return String(state.settings.versaoSite).trim();
+    return 'v2.4';
+  }
+
+  function versaoSugerida() {
+    var vAtual = versaoAtualSite();
+    var match = vAtual.match(/v?(\d+)\.(\d+)/i);
+    if (match) {
+      var maior = parseInt(match[1], 10);
+      var menor = parseInt(match[2], 10);
+      return 'v' + maior + '.' + (menor + 1);
+    }
+    return 'v2.5';
+  }
+
+  function modalEditorNotaAdmin(id) {
+    if (!podeEditar()) { avisoPrecisaAdmin(); return; }
+    var nota = id ? (state.notasAdmin || []).find(function (x) { return x.id === id; }) : null;
+    var hojeStr = (new Date()).toISOString().slice(0, 10);
+    var catAtual = nota ? nota.categoria : 'comunicado';
+    var temVersao = !!(nota && nota.versao);
+
+    var h = '<div class="modal-head">' +
+      '<h3>' + (nota ? '&#9999;&#65039; Editar Comunicado / Novidade' : '&#9997;&#65039; Publicar Nova Novidade ou Comunicado') + '</h3>' +
+      '<button class="btn sm" data-act="fechar-editor-nota">&#10005; Cancelar</button>' +
+    '</div>' +
+    '<div class="registro-obrigatorio"><span aria-hidden="true">&#128226;</span><span><b>Área de Publicação do Administrador:</b> Escreva sua mensagem ou lance uma nova versão do site. Ela será exibida para todos os atletas e visitantes.</span></div>' +
+    '<div class="panel tight" style="margin-bottom:12px">' +
+      '<label class="f"><span>Título da Novidade / Comunicado *</span>' +
+        '<input id="nota-titulo" maxlength="100" value="' + esc(nota ? nota.titulo : '') + '" placeholder="Ex.: Horário do treino de sábado / Nova conquista do clube" required autocomplete="off">' +
+      '</label>' +
+      '<div class="row">' +
+        '<label class="f"><span>Categoria *</span>' +
+          '<select id="nota-cat">' +
+            '<option value="comunicado"' + (catAtual === 'comunicado' ? ' selected' : '') + '>📢 Comunicado Oficial do Clube</option>' +
+            '<option value="novidade"' + (catAtual === 'novidade' ? ' selected' : '') + '>⚡ Novidade no Site / Sistema</option>' +
+            '<option value="treino"' + (catAtual === 'treino' ? ' selected' : '') + '>⚽ Treinos & Jogos</option>' +
+            '<option value="competicao"' + (catAtual === 'competicao' ? ' selected' : '') + '>🏆 Competições & Torneios</option>' +
+            '<option value="aviso"' + (catAtual === 'aviso' ? ' selected' : '') + '>ℹ️ Aviso Geral</option>' +
+          '</select>' +
+        '</label>' +
+        '<label class="f"><span>Data da Publicação *</span>' +
+          '<input id="nota-data" type="date" value="' + esc(nota ? nota.data : hojeStr) + '" required>' +
+        '</label>' +
+      '</div>' +
+      '<label class="f"><span>Mensagem / Conteúdo por escrito *</span>' +
+        '<textarea id="nota-texto" rows="6" placeholder="Escreva aqui os detalhes da novidade ou comunicado por escrito para o time..." style="font-size:13.5px;line-height:1.6">' + esc(nota ? nota.texto : '') + '</textarea>' +
+      '</label>' +
+
+      /* Opções de Lançamento de Versão e Destaque */
+      '<div class="panel tight" style="margin-top:10px;background:rgba(216,192,122,.06);border:1px solid rgba(216,192,122,.25);border-radius:10px">' +
+        '<label class="inline" style="cursor:pointer;margin-bottom:6px">' +
+          '<input type="checkbox" id="nota-nova-versao" data-act="toggle-campo-versao"' + (temVersao ? ' checked' : '') + '> ' +
+          '<span style="font-weight:700;color:var(--ouro)">&#128640; Lançar como Nova Versão Oficial do Site</span>' +
+        '</label>' +
+        '<div id="bloco-campo-versao" style="' + (temVersao ? '' : 'display:none;') + 'margin-top:8px">' +
+          '<label class="f"><span>Número / Nome da Nova Versão (ex.: v2.5, v3.0)</span>' +
+            '<input id="nota-versao" maxlength="20" placeholder="Ex.: v2.5" value="' + esc(temVersao ? nota.versao : versaoSugerida()) + '">' +
+          '</label>' +
+          '<div style="font-size:12px;color:var(--txt-mute);line-height:1.4">' +
+            'Ao marcar esta opção, a versão do site será atualizada automaticamente na barra do topo (' + esc(versaoSugerida()) + '), no rodapé e no painel de novidades para todos os usuários.' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<label class="inline" style="margin-top:8px;cursor:pointer">' +
+        '<input type="checkbox" id="nota-fixado"' + (nota && nota.fixado ? ' checked' : '') + '> ' +
+        '<span><b>📌 Fixar este comunicado no topo das novidades</b></span>' +
+      '</label>' +
+    '</div>' +
+    '<div class="inline" style="justify-content:flex-end;gap:8px">' +
+      '<button class="btn" data-act="fechar-editor-nota">Cancelar</button>' +
+      '<button class="btn pri" data-act="salvar-nota-admin" data-id="' + (nota ? esc(nota.id) : '') + '">' + (nota ? 'Salvar Alterações' : 'Publicar Novidade') + '</button>' +
+    '</div>';
+
+    openModal(h, true);
+    var foco = $('#nota-titulo'); if (foco) setTimeout(function () { try { foco.focus(); } catch (e) {} }, 60);
+  }
+
+  function modalNotasAtualizacao() {
+    var admin = podeEditar();
+    var notas = Array.isArray(state.notasAdmin) ? state.notasAdmin.slice() : [];
+    notas.sort(function (a, b) {
+      return (b.fixado ? 1 : 0) - (a.fixado ? 1 : 0) || String(b.data || '').localeCompare(String(a.data || ''));
+    });
+
+    var CAT_NOMES = {
+      comunicado: '📢 Comunicado Oficial',
+      novidade: '⚡ Novidade',
+      treino: '⚽ Treinos & Jogos',
+      competicao: '🏆 Competições',
+      aviso: 'ℹ️ Aviso Geral'
+    };
+    var CAT_CORES = {
+      comunicado: 'var(--ouro)',
+      novidade: '#38bdf8',
+      treino: '#34d399',
+      competicao: '#f59e0b',
+      aviso: 'var(--txt-dim)'
+    };
+
     var h = '<div class="modal-head">' +
       '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
-        '<h3 style="margin:0">&#128226; Notas de Atualização &amp; Segurança do Site</h3>' +
-        '<span class="badge ok" style="font-size:11.5px">v2.4 &middot; Setembro/2026</span>' +
+        '<h3 style="margin:0">&#128226; Notas de Atualização &amp; Comunicados</h3>' +
+        '<span class="badge ok" style="font-size:11.5px">' + esc(versaoAtualSite()) + ' &middot; Sistema Seguro</span>' +
       '</div>' +
-      '<button class="btn sm" data-act="fechar">&#10005; Fechar</button>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        (admin ? '<button class="btn sm pri" data-act="abrir-nova-nota-admin">&#9997;&#65039; Publicar Novidade</button>' : '') +
+        '<button class="btn sm" data-act="fechar">&#10005; Fechar</button>' +
+      '</div>' +
     '</div>' +
+
+    (admin ?
+      '<div class="panel tight" style="margin-bottom:14px;background:rgba(216,192,122,.08);border:1px solid rgba(216,192,122,.3);border-radius:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
+        '<div style="font-size:12.5px;color:var(--txt-dim);line-height:1.5">' +
+          '<b style="color:var(--ouro)">&#128273; Painel do Administrador:</b> Escreva recados, atualizações do time ou novidades sem precisar mexer no código.' +
+        '</div>' +
+        '<button class="btn sm ok" data-act="abrir-nova-nota-admin">&#9997;&#65039; Escrever nova publicação</button>' +
+      '</div>'
+    : '') +
+
+    /* Seção de Comunicados Publicados pelo Admin */
+    (notas.length ?
+      '<div style="margin-bottom:16px">' +
+        '<div class="h3" style="margin:0 0 10px;color:var(--txt);display:flex;align-items:center;gap:8px">' +
+          '<span>&#128227; Novidades &amp; Comunicados do Clube (' + notas.length + ')</span>' +
+        '</div>' +
+        notas.map(function (n) {
+          var catTxt = CAT_NOMES[n.categoria] || '📢 Comunicado';
+          var catCor = CAT_CORES[n.categoria] || 'var(--ouro)';
+          var txtFormatado = esc(n.texto || '').replace(/\n/g, '<br>');
+          return '<div class="panel tight" style="margin-bottom:12px;border:1px solid ' + (n.fixado ? 'rgba(216,192,122,.45)' : 'rgba(255,255,255,.10)') + ';background:' + (n.fixado ? 'rgba(216,192,122,.05)' : 'rgba(255,255,255,.025)') + ';border-radius:12px">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">' +
+              '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+                '<span class="badge" style="color:' + catCor + ';border-color:' + catCor + ';font-size:11px">' + catTxt + '</span>' +
+                (n.versao ? '<span class="badge ok" style="font-size:11px;font-weight:800;background:rgba(46,204,113,.16);border-color:rgba(46,204,113,.5)">&#128640; ' + esc(n.versao) + '</span>' : '') +
+                (n.fixado ? '<span class="badge ok" style="font-size:11px">&#128204; Fixado</span>' : '') +
+                '<b style="font-size:14px;color:var(--txt)">' + esc(n.titulo) + '</b>' +
+              '</div>' +
+              '<div style="display:flex;align-items:center;gap:6px">' +
+                '<span style="font-size:11.5px;color:var(--txt-mute)">' + fmtDate(n.data) + '</span>' +
+                (admin ?
+                  '<button class="btn xs" data-act="editar-nota-admin" data-id="' + esc(n.id) + '" title="Editar este comunicado">&#9999;&#65039; Editar</button>' +
+                  '<button class="btn xs danger" data-act="excluir-nota-admin" data-id="' + esc(n.id) + '" title="Excluir este comunicado">&#128465;</button>'
+                : '') +
+              '</div>' +
+            '</div>' +
+            '<div style="font-size:13.5px;color:var(--txt-dim);line-height:1.65;margin:8px 0">' + txtFormatado + '</div>' +
+            '<div style="font-size:11.5px;color:var(--txt-mute);text-align:right">Publicado por <b>' + esc(n.autor || 'Administrador') + '</b></div>' +
+          '</div>';
+        }).join('') +
+      '</div>'
+    : '') +
 
     /* Painel de Segurança e Privacidade */
     '<div class="panel tight" style="margin-bottom:14px;border:1px solid rgba(46,204,113,.4);background:linear-gradient(135deg,rgba(46,204,113,.10),rgba(20,35,65,.6));border-radius:12px">' +
@@ -11407,7 +11674,7 @@ function formularioRegistro() {
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
         '<div style="display:flex;align-items:center;gap:8px">' +
           '<span style="font-size:18px">&#9889;</span>' +
-          '<b style="color:var(--ouro);font-size:14px">Novidades da Versão 2.4 (Atual)</b>' +
+          '<b style="color:var(--ouro);font-size:14px">Melhorias Técnicas do Sistema &middot; v2.4</b>' +
         '</div>' +
         '<span class="badge" style="font-size:11px">28/09/2026</span>' +
       '</div>' +
@@ -12157,4 +12424,4 @@ function formularioRegistro() {
   };
 })();
 
-</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a426490a98255b6b',t:'MTc5MDYzNTU5OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
+</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a42667942e2d066a',t:'MTc5MDYzNjg0OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
